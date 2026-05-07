@@ -27,10 +27,10 @@ class Su:
       # on
       @self.core.event
       async def on_ready():
-         print(f'Shot: Online... as: {self.core.user.display_name}')
+         print(f'Shot: Online... as; {self.core.user.display_name}')
          await self.core.change_presence(
             activity = discord.CustomActivity(
-               name = 'Ready!'
+               name = '/help | sudo!'
             ),
             status = discord.Status('online')
          )
