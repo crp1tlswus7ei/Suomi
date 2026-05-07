@@ -7,8 +7,74 @@ the buttons won't work properly, so don't delete them.
 
 import discord
 
+from util.Msgs import *
 from util.Excp import *
 
+class HelpView(discord.ui.View):
+   def __init__(
+           self,
+           interaction: discord.Interaction
+   ):
+      super().__init__(timeout = None)
+      self.author = interaction.user.id
+      self.interaction = interaction
+      self.page = 0
+      self.pages = [
+         HelpMenuInfo_(interaction),
+         HelpMenuCommands(interaction),
+         HelpMenuSupport(interaction)
+      ]
+      self.updateBtns()
+
+   async def interaction_check(self, interaction: discord.Interaction) -> bool:
+      if interaction.user.id != self.author:
+         await interaction.response.send_message(
+            embed = excpmenu_(interaction),
+            ephemeral = True
+         )
+         return False
+      return True
+
+   def updateBtns(self):
+      self._left.disabled = self.page == 0
+      self._right.disabled = self.page == len(self.pages) - 1
+
+   async def showPage(self, interaction: discord.Interaction):
+      self.updateBtns()
+      await interaction.response.edit_message(
+         embed = self.pages[self.page],
+         view = self
+      )
+
+   @discord.ui.button(
+      emoji = '<:white_left:1484014305241202738>',
+      style = discord.ButtonStyle.gray,
+      disabled = True
+   )
+   async def _left(self, interaction: discord.Interaction, button: discord.ui.Button):
+      if self.page > 0:
+         self.page -= 1
+
+      await self.showPage(interaction)
+
+   @discord.ui.button(
+      emoji = '<:white_cross:1405656979266867210>',
+      style = discord.ButtonStyle.red,
+   )
+   async def _delete(self, interaction: discord.Interaction, button: discord.ui.Button):
+      await interaction.response.defer()
+      await interaction.message.delete()
+      self.stop()
+
+   @discord.ui.button(
+      emoji = '<:white_right:1501748298845917205>',
+      style = discord.ButtonStyle.gray
+   )
+   async def _right(self, interaction: discord.Interaction, button: discord.ui.Button):
+      if self.page < len(self.pages) - 1:
+         self.page += 1
+
+      await self.showPage(interaction)
 #
 
 class MenuAdvice(discord.ui.View):
