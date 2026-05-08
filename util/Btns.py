@@ -21,8 +21,8 @@ class HelpView(discord.ui.View):
       self.page = 0
       self.pages = [
          HelpMenuInfo_(interaction),
-         HelpMenuCommands(interaction),
-         HelpMenuSupport(interaction)
+         HelpMenuCommands_(interaction),
+         HelpMenuSupport_(interaction)
       ]
       self.updateBtns()
 
