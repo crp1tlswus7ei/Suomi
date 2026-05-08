@@ -43,15 +43,10 @@ def AddWarns_(self, guild_id, user_id, reason):
    return len(warns)
 
 def ClearWarns_(self, guild_id, user_id):
-   w_coll.update_one(
+   w_coll.delete_one(
       {
          'guild_id': guild_id,
          'user_id': user_id
-      },
-      {
-         '$set': {
-            'warnings': []
-         }
       }
    )
 
@@ -60,16 +55,25 @@ def RemoveWarn_(self, guild_id, user_id, amount):
 
    if 0 <= amount < len(warns):
       del warns[amount]
-      w_coll.update_one(
-         {
-            'guild_id': guild_id,
-            'user_id': user_id
-         },
-         {
-             '$set': {
-                'warnings': warns
-             }
-         }
-      )
+
+      if not warns:
+         w_coll.delete_one(
+            {
+               'guild_id': guild_id,
+               'user_id': user_id
+            }
+         )
+      else:
+         w_coll.update_one(
+            {
+               'guild_id': guild_id,
+               'user_id': user_id
+            },
+            {
+                '$set': {
+                   'warnings': warns
+                }
+            }
+         )
       return True
    return False
