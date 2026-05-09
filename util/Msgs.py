@@ -3,6 +3,49 @@ You're probably seeing too many warnings about unused parameters; just ignore th
 Interaction exceptions contain an underscore; otherwise, they use context.
 """
 
+categories = [
+   'Ban',
+   'Kick',
+   'SoftBan',
+   'UnBan',
+   'Warns',
+   'UnWarn',
+   'ClearWarns',
+   'WarnList',
+   'Mute',
+   'UnMute',
+   'HardMute',
+   'SetMute',
+   'Timeout',
+   'UnTimeout',
+   'LockChannel',
+   'UnLockChannel',
+   'Clear',
+   'Purge',
+   'CloneRole',
+   'MassRole'
+]
+cols = 2
+rows = (len(categories) + cols - 1) // cols
+split = [
+   categories[i * rows:(i + 1) * rows]
+   for i in range(cols)
+]
+widths = []
+for col in split:
+   widths.append(
+      max(len(item) for item in col) + 4
+   )
+text = ""
+for row in range(rows):
+   line = ""
+   for col_index, col in enumerate(split):
+      try:
+         line += col[row].ljust(widths[col_index])
+      except IndexError:
+         pass
+
+   text += line + "\n"
 
 import discord
 
@@ -53,6 +96,62 @@ def clearloading(ctx) -> discord.Embed:
    )
    embed.set_footer(
       text = 'This might take a few minutes.'
+   )
+   return embed
+
+#
+
+def HelpMenuInfo_(interaction: discord.Interaction) -> discord.Embed:
+   embed = discord.Embed(
+      title = "Hi! I'm Suomi",
+      description = 'A customizable, open-source bot designed for server moderation.'
+                    'If you want to see my code, visit my GitHub repository.'
+                    'Feel free to install it locally, customize it, or add commands,'
+                    'and check documentation to learn more about me.',
+      color = discord.Color.light_gray()
+   )
+   embed.add_field(
+      name = 'My links',
+      value = '[GitHub](https://github.com/crp1tlswus7ei/Suomi) | '
+              '[Support](https://discord.gg/KEfpB6yDJN)'
+   )
+   embed.set_footer(
+      text = 'Page 1 (Information)'
+   )
+   return embed
+
+def HelpMenuCommands_(interaction: discord.Interaction) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'About Commands',
+      description = f'I currently have 21 commands, all in the moderation category.',
+      color = discord.Color.light_gray()
+   )
+   embed.add_field(
+      name = 'Commands',
+      value = f'```{text}```'
+   )
+   embed.set_footer(
+      text = 'Page 2 (Commands)'
+   )
+   return embed
+
+def HelpMenuSupport_(interaction: discord.Interaction) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'Support',
+      description = "I'll provide comprehensive support for any issues you encounter"
+                    "with Suomi or the code, and i'd also appreciate any feedback you"
+                    "have about your experience. Thank you for supporting this project.",
+      color = discord.Color.light_gray()
+   )
+   embed.add_field(
+      name = 'Support Links',
+      value = '[Email](mailto:oskodev@gmail.com) | '
+              '[Support Server](https://discord.gg/KEfpB6yDJN) | '
+              '[DM Me](https://discord.com/users/oquattro)'
+   )
+   embed.set_footer(
+      text = '@ Quattro',
+      icon_url = interaction.client.user.display_avatar
    )
    return embed
 
