@@ -363,6 +363,16 @@ def excpnullmute_(interaction: discord.Interaction, user: discord.Member) -> dis
    )
    return embed
 
+def excpnulluserxp_(interaction: discord.Interaction, user: discord.Member) -> discord.Embed:
+   embed = discord.Embed(
+      title = f'{user.display_name} has no level on this server.',
+      color = discord.Color.orange()
+   )
+   embed.set_footer(
+      text = 'Try again later or send a message to start\nyour level tracking.'
+   )
+   return embed
+
 #
 
 def excpmenu_(interaction: discord.Interaction) -> discord.Embed:
