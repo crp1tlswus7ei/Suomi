@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from syst.SysLevel import Level
 from syst.SysPrefix import GetPrefix_
 
 load_dotenv()
@@ -76,6 +77,8 @@ class Su:
 
    async def shot_(self):
       async with self.core:
+         self.core.levels = Level(self.mongo_uri)
+         await self.core.levels.setup()
          await self.load_()
          await self.connect_()
          await self.core.start(self.token)
