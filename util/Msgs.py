@@ -157,6 +157,52 @@ def HelpMenuSupport_(interaction: discord.Interaction) -> discord.Embed:
 
 #
 
+def rank_(
+        interaction: discord.Interaction,
+        target,
+        lv,
+        xp,
+        xp_need,
+        xp_progress,
+        xp_range,
+        bar,
+        percent
+      ) -> discord.Embed:
+   embed = discord.Embed(
+      title = f'{target.display_name} Rank',
+      color = discord.Color.dark_purple()
+   )
+   embed.set_thumbnail(
+      url = target.display_avatar.url
+   )
+   embed.add_field(
+      name = 'Level',
+      value = f'**{lv}**',
+      inline = True
+   )
+   embed.add_field(
+      name = 'XP',
+      value = f'**{xp:,}**',
+      inline = True
+   )
+   embed.add_field(
+      name = 'Next level:',
+      value = f'**{xp_need:,} XP**',
+      inline = True
+   )
+   embed.add_field(
+      name = f'Progress ({xp_progress:,} / {xp_range:,})',
+      value = f'`{bar}` {percent:.0%}',
+      inline = False
+   )
+   embed.set_footer(
+      text = interaction.guild.name,
+      icon_url = interaction.guild.icon
+   )
+   return embed
+
+#
+
 def ban_(interaction: disord.Interaction, user: discord.Member, reason: str) -> discord.Embed:
    embed = discord.Embed(
       title = f'Ban: {user.display_name}',
