@@ -9,7 +9,7 @@ from util.Msgs import *
 class Timeout(commands.Cog):
    def __init__(self, core):
       self.core = core
-      self.ExcpForbidden = ButtonExcpForbidden
+      self.ExcpForbidden = ButtonExcpForbidden()
 
    @app_commands.command(
       name = 'timeout',
@@ -20,6 +20,7 @@ class Timeout(commands.Cog):
       duration = 'Minutes of mute; 10 minutes by default.',
       reason = 'Reason for the mute.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       moderate_members = True
    )
@@ -57,6 +58,7 @@ class Timeout(commands.Cog):
                embed = excpnullduration_(interaction),
                ephemeral = True
             )
+            return
 
          if user.top_role >= interaction.user.top_role:
             await interaction.response.send_message(
@@ -71,6 +73,8 @@ class Timeout(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
+
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -103,6 +107,8 @@ class Timeout(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
+
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
