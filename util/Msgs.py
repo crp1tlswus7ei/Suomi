@@ -3,51 +3,8 @@ You're probably seeing too many warnings about unused parameters; just ignore th
 Interaction exceptions contain an underscore; otherwise, they use context.
 """
 
-categories = [
-   'Ban',
-   'Kick',
-   'SoftBan',
-   'UnBan',
-   'Warns',
-   'UnWarn',
-   'ClearWarns',
-   'WarnList',
-   'Mute',
-   'UnMute',
-   'HardMute',
-   'SetMute',
-   'Timeout',
-   'UnTimeout',
-   'LockChannel',
-   'UnLockChannel',
-   'Clear',
-   'Purge',
-   'CloneRole',
-   'MassRole'
-]
-cols = 2
-rows = (len(categories) + cols - 1) // cols
-split = [
-   categories[i * rows:(i + 1) * rows]
-   for i in range(cols)
-]
-widths = []
-for col in split:
-   widths.append(
-      max(len(item) for item in col) + 4
-   )
-text = ""
-for row in range(rows):
-   line = ""
-   for col_index, col in enumerate(split):
-      try:
-         line += col[row].ljust(widths[col_index])
-      except IndexError:
-         pass
-
-   text += line + "\n"
-
 import discord
+from util.Ctgr import text
 
 def prefixset(ctx, new_prefix: str) -> discord.Embed:
    embed = discord.Embed(
