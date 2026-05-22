@@ -61,9 +61,9 @@ def clearloading(ctx) -> discord.Embed:
 def HelpMenuInfo_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
       title = "Hi! I'm Suomi",
-      description = 'A customizable, open-source bot designed for server moderation.'
-                    'If you want to see my code, visit my GitHub repository.'
-                    'Feel free to install it locally, customize it, or add commands,'
+      description = 'A customizable, open-source bot designed for server moderation. '
+                    'If you want to see my code, visit my GitHub repository. '
+                    'Feel free to install it locally, customize it, or add commands, '
                     'and check documentation to learn more about me.',
       color = discord.Color.light_gray()
    )
@@ -95,8 +95,8 @@ def HelpMenuCommands_(interaction: discord.Interaction) -> discord.Embed:
 def HelpMenuSupport_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
       title = 'Support',
-      description = "I'll provide comprehensive support for any issues you encounter"
-                    "with Suomi or the code, and i'd also appreciate any feedback you"
+      description = "I'll provide comprehensive support for any issues you encounter "
+                    "with Suomi or the code, and i'd also appreciate any feedback you "
                     "have about your experience. Thank you for supporting this project.",
       color = discord.Color.light_gray()
    )
@@ -127,7 +127,7 @@ def rank_(
       ) -> discord.Embed:
    embed = discord.Embed(
       title = f'{target.display_name} Rank',
-      color = discord.Color.dark_purple()
+      color = discord.Color.from_str('#26215C')
    )
    embed.set_thumbnail(
       url = target.display_avatar.url
@@ -163,8 +163,9 @@ def rank_(
 def ban_(interaction: disord.Interaction, user: discord.Member, reason: str) -> discord.Embed:
    embed = discord.Embed(
       title = f'Ban: {user.display_name}',
-      description = f'''**id:** {user.id}\n**reason:** {reason}''',
-      color = discord.Color.light_gray()
+      description = f'**id:** {user.id}\n'
+                    f'**reason:** {reason}',
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'Ban by: {interaction.user.display_name}',
@@ -175,8 +176,9 @@ def ban_(interaction: disord.Interaction, user: discord.Member, reason: str) -> 
 def kick_(interaction: discord.Interaction, user: discord.Member, reason: str) -> discord.Embed:
    embed = discord.Embed(
       title = f'Kick: {user.display_name}',
-      description = f'**id:** {user.id}\n**reason:** {reason}',
-      color = discord.Color.light_gray()
+      description = f'**id:** {user.id}\n'
+                    f'**reason:** {reason}',
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'Kick by: {interaction.user.display_name}',
@@ -187,8 +189,9 @@ def kick_(interaction: discord.Interaction, user: discord.Member, reason: str) -
 def softban_(interaction: discord.Interaction, user: discord.Member, reason: str) -> discord.Embed:
    embed = discord.Embed(
       title = f'SoftBan: {user.display_name}',
-      description = f'**id** {user.id}\n**reason:** {reason}',
-      color = discord.Color.light_gray()
+      description = f'**id** {user.id}\n'
+                    f'**reason:** {reason}',
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'SoftBan by: {interaction.user.display_name}',
@@ -198,20 +201,20 @@ def softban_(interaction: discord.Interaction, user: discord.Member, reason: str
 
 def unban_(interaction: discord.Interaction, user_id: str) -> discord.Embed:
    embed = discord.Embed(
-      title = f'Unban: {user_id}',
-      color = discord.Color.light_gray()
+      title = f'UnBan: {user_id}',
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
-      text = f'Unban by: {interaction.user.display_name}',
+      text = f'UnBan by: {interaction.user.display_name}',
       icon_url = interaction.user.avatar
    )
    return embed
 
 def clearwarns_(interaction: discord.Interaction, user: discord.Member, reason: str) -> discord.Embed:
    embed = discord.Embed(
-      title = f'{user.display_name} warns removed.',
+      title = f'ClearWarns: {user.display_name}',
       description = f'**reason:** {reason}',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'Clean by: {interaction.user.display_name}',
@@ -221,21 +224,22 @@ def clearwarns_(interaction: discord.Interaction, user: discord.Member, reason: 
 
 def unwarn_(interaction: discord.Interaction, user: discord.Member, rmc) -> discord.Embed:
    embed = discord.Embed(
-      title = f'{user.display_name} warn(s) removed.',
+      title = f'UnWarn: {user.display_name}',
       description = f'**warns removed:** {rmc}',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
-      text = f'Unwarn by: {interaction.user.display_name}',
+      text = f'UnWarn by: {interaction.user.display_name}',
       icon_url = interaction.user.avatar
    )
    return embed
 
 def warn_(interaction: discord.Interaction, user: discord.Member, totalw_: int, reason: str) -> discord.Embed:
    embed = discord.Embed(
-      title = f'{user.display_name} warned.',
-      description = f'**warns:** {totalw_}\n**reason:** {reason}',
-      color = discord.Color.light_gray()
+      title = f'Warn: {user.display_name}',
+      description = f'**warns:** {totalw_}\n'
+                    f'**reason:** {reason}',
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'Warn by: {interaction.user.display_name}',
@@ -247,7 +251,7 @@ def warnings_(interaction: discord.Interaction, title: str, description: str) ->
    embed = discord.Embed(
       title = title,
       description = description,
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'List request by: {interaction.user.display_name}',
@@ -259,7 +263,7 @@ def hardmute_(interaction: discord.Interaction, user: discord.Member, reason: st
    embed = discord.Embed(
       title = f'HardMute: {user.display_name}',
       description = f'**reason:** {reason}',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'HardMute by: {interaction.user.display_name}',
@@ -270,14 +274,17 @@ def hardmute_(interaction: discord.Interaction, user: discord.Member, reason: st
 def hardmuteloading_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
       title = 'HardMute: In progress...',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#0C447C')
+   )
+   embed.set_footer(
+      text = 'This might take a few seconds.'
    )
    return embed
 
 def hardmutecaution_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
       title = 'HardMute: Caution',
-      color = discord.Color.orange()
+      color = discord.Color.from_str('#633806')
    )
    embed.set_footer(
       text = "This will remove all user's roles and apply HardMute.\n"
@@ -289,7 +296,7 @@ def mute_(interaction: discord.Interaction, user: discord.Member, reason: str) -
    embed = discord.Embed(
       title = f'Mute: {user.display_name}',
       description = f'**reason:** {reason}',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'Mute by: {interaction.user.display_name}',
@@ -299,18 +306,19 @@ def mute_(interaction: discord.Interaction, user: discord.Member, reason: str) -
 
 def setmute_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
-      title = 'Set Mute: Done',
-      color = discord.Color.light_gray()
+      title = 'SetMute: Done',
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
-      text = 'Mute and Hard Mute roles haven been\ncreated and permissions been applied.'
+      text = 'Mute and Hard Mute roles haven been\n'
+             'created and permissions been applied.'
    )
    return embed
 
 def setmuteloading_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
-      title = 'Set Mute: In progress...',
-      color = discord.Color.light_gray()
+      title = 'SetMute: In progress...',
+      color = discord.Color.from_str('#0C447C')
    )
    embed.set_footer(
       text = 'This might take a few seconds.'
@@ -319,22 +327,23 @@ def setmuteloading_(interaction: discord.Interaction) -> discord.Embed:
 
 def setmutecaution_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
-      title = 'Set Mute: Caution',
-      color = discord.Color.light_gray()
+      title = 'SetMute: Caution',
+      color = discord.Color.from_str('#633806')
    )
    embed.set_footer(
-      text = 'This will create new mute roles\nconfigured by Suomi.'
+      text = 'This will create new mute roles\n'
+             'configured by Suomi.'
    )
    return embed
 
 def unmute_(interaction: discord.Interaction, user: discord.Member, reason: str) -> discord.Embed:
    embed = discord.Embed(
-      title = f'Unmute: {user.display_name}',
+      title = f'UnMute: {user.display_name}',
       description = f'**reason:** {reason}',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
-      text = f'Unmute by: {interaction.user.display_name}',
+      text = f'UnMute by: {interaction.user.display_name}',
       icon_url = interaction.user.avatar
    )
    return embed
@@ -342,8 +351,9 @@ def unmute_(interaction: discord.Interaction, user: discord.Member, reason: str)
 def timeout_(interaction: discord.Interaction, user: discord.Member, duration: int, reason: str) -> discord.Embed:
    embed = discord.Embed(
       title = f'Timeout: {user.display_name}',
-      description = f'**duration:** {duration} minutes.\n**reason:** {reason}',
-      color = discord.Color.light_gray()
+      description = f'**duration:** {duration} minutes.\n'
+                    f'**reason:** {reason}',
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'Timeout by: {interaction.user.display_name}',
@@ -355,10 +365,10 @@ def untimeout_(interaction: discord.Interaction, user: discord.Member, reason: s
    embed = discord.Embed(
       title = f'UnTimeout: {user.display_name}',
       description = f'**reason:** {reason}',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
-      text = f'Untimeout by: {interaction.user.display_name}',
+      text = f'UnTimeout by: {interaction.user.display_name}',
       icon_url = interaction.user.avatar
    )
    return embed
@@ -367,7 +377,7 @@ def lockchannel_(interaction: discord.Interaction, channel: discord.TextChannel,
    embed = discord.Embed(
       title = f'Lock: {channel.mention}',
       description = f'**reason:** {reason}',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'Lock by: {interaction.user.display_name}',
@@ -379,10 +389,10 @@ def unlockchannel_(interaction: discord.Interaction, channel: discord.TextChanne
    embed = discord.Embed(
       title = f'UnLock: {channel.mention}',
       description = f'**reason:** {reason}',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
-      text = f'Unlock by: {interaction.user.display_name}',
+      text = f'UnLock by: {interaction.user.display_name}',
       icon_url = interaction.user.avatar
    )
    return embed
@@ -390,7 +400,7 @@ def unlockchannel_(interaction: discord.Interaction, channel: discord.TextChanne
 def clear_(interacion: discord.Interaction, amount: int) -> discord.Embed:
    embed = discord.Embed(
       title = 'Clear: Done',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'{amount} messages deleted.'
@@ -400,7 +410,7 @@ def clear_(interacion: discord.Interaction, amount: int) -> discord.Embed:
 def clearloading_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
       title = 'Clear: In progress...',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#0C447C')
    )
    embed.set_footer(
       text = 'This might take a few minutes.'
@@ -410,7 +420,7 @@ def clearloading_(interaction: discord.Interaction) -> discord.Embed:
 def purge_(interaction: discord.Interaction, user: discord.Member, amount: int) -> discord.Embed:
    embed = discord.Embed(
       title = f'Purge: {user.display_name}',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'{amount} messages deleted.'
@@ -419,19 +429,19 @@ def purge_(interaction: discord.Interaction, user: discord.Member, amount: int) 
 
 def purgeloading_(interaction: discord.Interaction, user: discord.Member) -> discord.Embed:
    embed = discord.Embed(
-      title = f'Deleting {user.display_name} messages...',
-      color = discord.Color.light_gray()
+      title = f'Purge: In progress...',
+      color = discord.Color.from_str('#0C447C')
    )
    embed.set_footer(
-      text = 'This might take a few mintutes.'
+      text = 'This might take a few minutes.'
    )
    return embed
 
 def clonerole_(interaction: discord.Interaction, role: discord.Role) -> discord.Embed:
    embed = discord.Embed(
-      title = f'Clone Role: Done',
+      title = f'CloneRole: Done',
       description = f'**role:** {role.name}',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'Clone by: {interaction.user.display_name}',
@@ -441,8 +451,8 @@ def clonerole_(interaction: discord.Interaction, role: discord.Role) -> discord.
 
 def cloneroleloading_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
-      title = 'Clone Role: In progress...',
-      color = discord.Color.light_gray()
+      title = 'CloneRole: In progress...',
+      color = discord.Color.from_str('#0C447C')
    )
    embed.set_footer(
       text = 'This might take a few seconds.'
@@ -452,7 +462,7 @@ def cloneroleloading_(interaction: discord.Interaction) -> discord.Embed:
 def massrole_(interaction: discord.Interaction, role: discord.Role) -> discord.Embed:
    embed = discord.Embed(
       title = 'Mass Role: Done',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
       text = f'"{role}" added globally.'
@@ -462,7 +472,7 @@ def massrole_(interaction: discord.Interaction, role: discord.Role) -> discord.E
 def massroleloading_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
       title = 'Mass Role: In progress...',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#0C447C')
    )
    embed.set_footer(
       text = 'This might take a few minutes.'
@@ -472,7 +482,7 @@ def massroleloading_(interaction: discord.Interaction) -> discord.Embed:
 def massrolecaution_(interaction: discord.Interaction, role: discord.Role) -> discord.Embed:
    embed = discord.Embed(
       title = 'MassRole: Caution',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#633806')
    )
    embed.set_footer(
       text = f'This will add "{role}" to all users, including Bots.'
