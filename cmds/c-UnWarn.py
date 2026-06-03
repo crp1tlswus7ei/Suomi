@@ -6,9 +6,9 @@ from util.Excp import *
 from util.Msgs import *
 
 class UnWarn(commands.Cog):
-   from syst.SysWarn import GetWarns_, RemoveWarn_
    def __init__(self, core):
       self.core = core
+      self.Warn = core.sWarn
       self.ExcpForbidden = ButtonExcpForbidden()
 
    @app_commands.command(
@@ -19,13 +19,21 @@ class UnWarn(commands.Cog):
       user = 'User to remove warn.',
       amount = 'Number of warns to remove; 1 by default.',
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       manage_roles = True
    )
-   async def unwarn(self, interaction: discord.Interaction, user: discord.Member, amount: int = 1):
+   async def unwarn(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member,
+           amount: app_commands.Range[int, 1, 10] = 1
+   ):
       #
-      user_id = str(user.id)
-      warns_ = self.GetWarns_(interaction.guild.id, user_id) # safe
+      warns_ = await self.Warn.GetWarns_(
+         user.id,
+         interaction.guild.id
+      )
       amount = max(1, min(amount, 10))
       rmc = min(amount, len(warns_))
       _delete = ButtonDelete(interaction)
@@ -52,7 +60,7 @@ class UnWarn(commands.Cog):
             )
             return
 
-         if amount <= 0 or amount >= 10:
+         if amount <= 0 or amount > 10:
             await interaction.response.send_message(
                embed = excpnullamount_(interaction),
                ephemeral = True
@@ -72,6 +80,7 @@ class UnWarn(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -80,6 +89,7 @@ class UnWarn(commands.Cog):
          print(f'UnWarn: (permissions); {s}')
          return
 
+      #
       if not warns_:
          await interaction.response.send_message(
             embed = excpnullwarns_(interaction, user),
@@ -90,7 +100,7 @@ class UnWarn(commands.Cog):
       #
       try:
          for _ in range(rmc):
-            self.RemoveWarn_(interaction.guild.id, user_id, 0) # safe
+            await self.Warn.RemoveWarn_(user.id, interaction.guild.id, 0)
 
          await interaction.response.send_message(
             embed = unwarn_(interaction, user, rmc),
@@ -104,6 +114,7 @@ class UnWarn(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
