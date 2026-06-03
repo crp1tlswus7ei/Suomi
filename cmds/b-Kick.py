@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 from util.Btns import *
@@ -18,10 +19,16 @@ class Kick(commands.Cog):
       user = 'User to be kicked.',
       reason = 'Reason for the kick.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       kick_members = True
    )
-   async def kick(self, interaction: discord.Interaction, user: discord.Member, reason: str = None):
+   async def kick(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member,
+           reason: Optional[app_commands.Range[str, 1, 70]] = None
+   ):
       #
       _delete = ButtonDelete(interaction)
       #
@@ -60,6 +67,7 @@ class Kick(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -84,6 +92,7 @@ class Kick(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
