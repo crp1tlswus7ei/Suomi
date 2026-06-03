@@ -170,6 +170,16 @@ def excpusernofound_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
+def excpusernoban_(interaction: discord.Interaction) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'Something went wrong.',
+      color = discord.Color.from_str('#6B2E08')
+   )
+   embed.set_footer(
+      text = 'User not banned.'
+   )
+   return embed
+
 def excpuserself_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
       title = "You can't do that.",
