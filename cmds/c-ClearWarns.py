@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 from util.Btns import *
@@ -6,9 +7,9 @@ from util.Excp import *
 from util.Msgs import *
 
 class ClearWarns(commands.Cog):
-   from syst.SysWarn import GetWarns_, ClearWarns_
    def __init__(self, core):
       self.core = core
+      self.Warn = core.sWarn
       self.ExcpForbidden = ButtonExcpForbidden()
 
    @app_commands.command(
@@ -18,13 +19,22 @@ class ClearWarns(commands.Cog):
    @app_commands.describe(
       user = 'User to clear warns.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
+      moderate_members = True,
       manage_roles = True
    )
-   async def clear_warns(self, interaction: discord.Interaction, user: discord.Member, reason: str = None):
+   async def clear_warns(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member,
+           reason: Optional[app_commands.Range[str, 1, 70]] = None
+   ):
       #
-      user_id = str(user.id)
-      warns_ = self.GetWarns_(interaction.guild.id, user_id) # safe
+      warns_ = await self.Warn.GetWarns_(
+         user.id,
+         interaction.guild.id
+      )
       _delete = ButtonDelete(interaction)
       #
       try:
@@ -42,7 +52,7 @@ class ClearWarns(commands.Cog):
             )
             return
 
-         if not interaction.user.guild_permissions.manage_roles:
+         if not interaction.user.guild_permissions.moderate_members:
             await interaction.response.send_message(
                embed = excpuserperms_(interaction),
                ephemeral = True
@@ -62,6 +72,7 @@ class ClearWarns(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -70,6 +81,7 @@ class ClearWarns(commands.Cog):
          print(f'ClearWarns: (permissions); {s}')
          return
 
+      #
       if not warns_:
          await interaction.response.send_message(
             embed = excpnullwarns_(interaction, user),
@@ -79,7 +91,10 @@ class ClearWarns(commands.Cog):
 
       #
       try:
-         self.ClearWarns_(interaction.guild.id, user_id) # safe
+         await self.Warn.ClearWarns_(
+            user.id,
+            interaction.guild.id
+         )
 
          await interaction.response.send_message(
             embed = clearwarns_(interaction, user, reason or 'None'),
@@ -93,6 +108,7 @@ class ClearWarns(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
