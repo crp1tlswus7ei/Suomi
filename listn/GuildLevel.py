@@ -6,14 +6,14 @@ from discord.ext import commands
 class LevelsCog(commands.Cog):
    def __init__(self, core):
       self.core = core
-      self.levels = core.levels
+      self.Level = core.sLevel
 
    @commands.Cog.listener()
    async def on_message(self, message: discord.Message) -> None:
       if message.author.bot:
          return
 
-      result = await self.core.levels.on_message(message)
+      result = await self.Level.on_message(message)
 
       if result is not None:
          new_lv, _ = result
