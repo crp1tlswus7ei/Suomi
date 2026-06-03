@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 from util.Btns import *
@@ -18,10 +19,16 @@ class SoftBan(commands.Cog):
       user = 'User to be banned.',
       reason = 'Reason for the ban.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       ban_members = True,
    )
-   async def softban(self, interaction: discord.Interaction, user: discord.Member, reason: str = None):
+   async def softban(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member,
+           reason: Optional[app_commands.Range[str, 1, 70]] = None
+   ):
       #
       _delete = ButtonDelete(interaction)
       #
@@ -60,6 +67,7 @@ class SoftBan(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -85,12 +93,14 @@ class SoftBan(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
             ephemeral = True
          )
          print(f'SoftBan: (primary); {s}')
+         return
 
 #
 async def setup(core):
