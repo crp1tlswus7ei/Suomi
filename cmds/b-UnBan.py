@@ -17,12 +17,16 @@ class UnBan(commands.Cog):
    @app_commands.describe(
       user_id = 'User ID to be unbanned.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       ban_members = True
    )
-   async def unban(self, interaction: discord.Interaction, user_id: str):
+   async def unban(
+           self,
+           interaction: discord.Interaction,
+           user_id: app_commands.Range[str, 18, 19]
+   ):
       #
-      user_ = await self.core.fetch_user(user_id)
       _delete = ButtonDelete(interaction)
       #
       if not interaction.user.guild_permissions.ban_members:
@@ -34,25 +38,35 @@ class UnBan(commands.Cog):
 
       #
       try:
-         user_id = int(user_id) # safe
-
+         toIdUser = int(user_id)
       except ValueError:
          await interaction.response.send_message(
             embed = excpiderror_(interaction),
             ephemeral = True
          )
-      except discord.Forbidden:
+         return
+
+      #
+      try:
+         user_ = await self.core.fetch_user(toIdUser)
+      except discord.NotFound:
          await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
+            embed = excpusernofound_(interaction),
             ephemeral = True
          )
-         print(f'UnBan: (user_id); {s}')
+         return
+      except discord.HTTPException as s:
+         if s.code == 50035:
+            await interaction.response.send_message(
+               embed = excpidnofound_(interaction),
+               ephemeral = True
+            )
+         else:
+            await interaction.response.send_message(
+               embed = excperror_(interaction),
+               ephemeral = True
+            )
+            print(f'UnBan: (fetch_user); {s}')
          return
 
       #
@@ -71,17 +85,13 @@ class UnBan(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except discord.NotFound:
          await interaction.response.send_message(
-            embed = excpusernofound_(interaction),
+            embed = excpusernoban_(interaction),
             ephemeral = True
          )
-      except discord.HTTPException as s:
-         if s.code == 50035:
-            await interaction.response.send_message(
-               embed = excpidnofound_(interaction),
-               ephemeral = True
-            )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
