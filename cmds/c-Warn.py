@@ -6,9 +6,9 @@ from util.Excp import *
 from util.Msgs import *
 
 class Warn(commands.Cog):
-   from syst.SysWarn import GetWarns_, AddWarns_ # safe
    def __init__(self, core):
       self.core = core
+      self.Warn = core.sWarn
       self.ExcpForbidden = ButtonExcpForbidden()
 
    @app_commands.command(
@@ -19,12 +19,17 @@ class Warn(commands.Cog):
       user = 'User to add warn.',
       reason = 'Reason for the warn.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       manage_roles = True
    )
-   async def warn(self, interaction: discord.Interaction, user: discord.Member, reason: str):
+   async def warn(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member,
+           reason: app_commands.Range[str, 1, 70]
+   ):
       #
-      user_id = str(user.id)
       _delete = ButtonDelete(interaction)
       #
       try:
@@ -62,6 +67,7 @@ class Warn(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -72,10 +78,14 @@ class Warn(commands.Cog):
 
       #
       try:
-         totalw_ = self.AddWarns_(interaction.guild.id, user_id, reason)  # safe
+         totalWarns_ = await self.Warn.AddWarns_(
+            user.id,
+            interaction.guild.id,
+            interaction.user.id, reason
+         )
 
          await interaction.response.send_message(
-            embed = warn_(interaction, user, totalw_, reason),
+            embed = warn_(interaction, user, totalWarns_, reason),
             ephemeral = False,
             view = _delete
          )
@@ -86,6 +96,7 @@ class Warn(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
