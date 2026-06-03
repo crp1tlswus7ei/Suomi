@@ -6,9 +6,9 @@ from util.Excp import *
 from util.Msgs import *
 
 class WarnList(commands.Cog):
-   from syst.SysWarn import GetWarns_
    def __init__(self, core):
       self.core = core
+      self.Warn = core.sWarn
       self.ExcpForbidden = ButtonExcpForbidden()
 
    @app_commands.command(
@@ -18,15 +18,17 @@ class WarnList(commands.Cog):
    @app_commands.describe(
       user = 'User to display warns.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       manage_roles = True
    )
-   async def warn_list(self, interaction: discord.Interaction, user: discord.Member = None):
+   async def warn_list(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member = None
+   ):
       #
-      user_id = str(user.id)
       user = user or interaction.user
-      _delete = ButtonDelete(interaction)
-      usrwarns_ = self.GetWarns_(interaction.guild.id, user_id) # safe
       #
       try:
          if user == self.core.user:
@@ -49,6 +51,7 @@ class WarnList(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -57,7 +60,19 @@ class WarnList(commands.Cog):
          print(f'WarnList: (permissions); {s}')
          return
 
-      if not usrwarns_:
+      #
+      try:
+         warns: dict = await self.Warn.GetWarns_(user.id, interaction.guild_id)
+      except Exception as s:
+         await interaction.response.send_message(
+            embed = excperror_(interaction),
+            ephemeral = True
+         )
+         print(f'WarnList: (secondary); {s}')
+         return
+
+      #
+      if not warns:
          await interaction.response.send_message(
             embed = excpnullwarns_(interaction, user),
             ephemeral = True
@@ -66,16 +81,12 @@ class WarnList(commands.Cog):
 
       #
       try:
-         self.GetWarns_(interaction.guild.id, user_id) # safe
+         view = MenuWarns(interaction, user, warns)
 
          await interaction.response.send_message(
-            embed = warnings_(
-               interaction,
-               title = f'{user.display_name} warns:',
-               description = '\n' + '\n'.join(usrwarns_),
-            ),
-            ephemeral = False,
-            view = _delete
+            embed = view._buildEmbed(), # safe
+            view = view,
+            ephemeral = False
          )
 
       except discord.Forbidden:
@@ -84,6 +95,7 @@ class WarnList(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
