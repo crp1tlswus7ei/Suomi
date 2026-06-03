@@ -7,6 +7,7 @@ the buttons won't work properly, so don't delete them.
 
 import discord
 
+from datetime import datetime, timezone
 from util.Msgs import *
 from util.Excp import *
 
@@ -75,7 +76,97 @@ class HelpView(discord.ui.View):
          self.page += 1
 
       await self.showPage(interaction)
+
 #
+
+class MenuWarns(discord.ui.View):
+   def __init__(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member,
+           warns: list[dict],
+   ):
+      super().__init__(timeout = None)
+      self.interaction = interaction
+      self.warns = warns
+      self.user = user
+      self.index = 0
+      self._updateBtns()
+
+   def _updateBtns(self):
+      self.btn_prev.disabled = self.index == 0
+      self.btn_next.disabled = self.index == len(self.warns) - 1
+
+   def _buildEmbed(self) -> discord.Embed:
+      warn = self.warns[self.index]
+      total = len(self.warns)
+      date = datetime.fromtimestamp(warn['d'], tz = timezone.utc)
+      date_fmt = discord.utils.format_dt(date, style = 'F')
+      date_rel = discord.utils.format_dt(date, style = 'R')
+
+      embed = discord.Embed(
+         title = f'{self.user.display_name} warns',
+         description = f'**Reason:** \n {warn['r']}',
+         color = discord.Color.from_str('#791F1F')
+      )
+      embed.set_thumbnail(url = self.user.display_avatar.url)
+      embed.add_field(
+         name = 'Date',
+         value = f'{date_fmt}\n{date_rel}',
+         inline = False
+      )
+      embed.add_field(
+         name = 'Author',
+         value = f'<@{warn['a']}>',
+         inline = False
+      )
+      embed.set_footer(
+         text = f'Warn {self.index + 1} of {total}'
+      )
+      return embed
+
+   async def _refresh(self, interaction: discord.Interaction):
+      self._updateBtns()
+      await interaction.response.edit_message(
+         embed = self._buildEmbed(),
+         view = self
+      )
+
+   @discord.ui.button(
+      emoji = '<:white_left:1484014305241202738>',
+      style = discord.ButtonStyle.gray,
+   )
+   async def btn_prev(
+           self,
+           interaction: discord.Interaction,
+           button = discord.ui.Button
+   ):
+      self.index -= 1
+      await self._refresh(interaction)
+
+   @discord.ui.button(
+      emoji = '<:white_right:1501748298845917205>',
+      style = discord.ButtonStyle.gray
+   )
+   async def btn_next(
+           self,
+           interaction: discord.Interaction,
+           button = discord.ui.Button
+   ):
+      self.index += 1
+      await self._refresh(interaction)
+
+   @discord.ui.button(
+      emoji = '<:white_cross:1405656979266867210>',
+      style = discord.ButtonStyle.red
+   )
+   async def btn_delete(
+           self,
+           interaction: discord.Interaction,
+           button: discord.ui.BUtton
+   ):
+      await interaction.response.defer()
+      await interaction.delete_original_response()
 
 class MenuAdvice(discord.ui.View):
    def __init__(
