@@ -17,11 +17,16 @@ class Purge(commands.Cog):
    @app_commands.describe(
       user = 'User to delete messages.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       manage_messages = True,
       moderate_members = True
    )
-   async def purge(self, interaction: discord.Interaction, user: discord.Member):
+   async def purge(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member
+   ):
       #
       _delete = ButtonDelete(interaction)
 
@@ -64,6 +69,7 @@ class Purge(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -96,6 +102,7 @@ class Purge(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.followup.send(
             embed = excperror_(interaction),
