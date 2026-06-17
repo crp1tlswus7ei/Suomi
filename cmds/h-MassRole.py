@@ -21,7 +21,11 @@ class MassRole(commands.Cog):
    @app_commands.default_permissions(
       administrator = True
    )
-   async def mass_role(self, interaction: discord.Interaction, role: discord.Role):
+   async def mass_role(
+           self,
+           interaction: discord.Interaction,
+           role: discord.Role
+   ):
       #
       members = interaction.guild.members
       _view = MenuAdvice(interaction)
@@ -62,6 +66,7 @@ class MassRole(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -83,6 +88,7 @@ class MassRole(commands.Cog):
             embed = excpmenumassrole_(interaction),
             view = _delete
          )
+         return
 
       else:
          await interaction.edit_original_response(
@@ -94,6 +100,9 @@ class MassRole(commands.Cog):
       #
       try:
          for member in members:
+            if role in member.roles:
+               continue
+
             await member.add_roles(role)
             self.count += 1
 
@@ -108,6 +117,7 @@ class MassRole(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.followup.send(
             embed = excperror_(interaction),
