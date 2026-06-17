@@ -2,7 +2,7 @@
 This per-server level system is designed to be as storage efficient
 as possible; it aims to minimize the number of records stored per
 user, allowing large number of records to be stored in a small amount
-of space
+of space :D
 """
 
 from __future__ import annotations
@@ -64,12 +64,10 @@ class Level:
       result = await self._col.find_one_and_update(
          {
             '_id': uid_,
-            'g': {
-               '$elemMatch': {
-                  'id': gid_,
-                  'lm': {'$lte': now_min - cooldown}
-               }
-            }
+            'g': { '$elemMatch': {
+               'id': gid_,
+               'lm': {'$lte': now_min - cooldown}
+            }}
          },
          {
             '$inc': {'g.$.xp': xp_gain},
@@ -97,14 +95,17 @@ class Level:
 
          else:
             guild_entry = await self._col.find_one(
-               {'_id': uid_, 'g.id': gid_},
+               {
+                  '_id': uid_,
+                  'g.id': gid_
+               },
                projection = {'g.$': 1}
             )
 
             if guild_entry is None:
                await self._col.update_one(
                   {'_id': uid_},
-                  {'$push': {'g': {
+                  {'$push': { 'g': {
                      'id': gid_,
                      'xp': xp_gain,
                      'lv': 0,
@@ -114,7 +115,10 @@ class Level:
             return None
 
          result = await self._col.find_one(
-            {'_id': uid_, 'g.id': gid_},
+            {
+               '_id': uid_,
+               'g.id': gid_
+            },
             projection = {'g.$': 1}
          )
 
@@ -128,8 +132,13 @@ class Level:
 
       if new_lv > current_lv:
          await self._col.update_one(
-            {'_id': uid_, 'g.id': gid_},
-            {'$set': {'g.$.lv': new_lv}}
+            {
+               '_id': uid_,
+               'g.id': gid_
+            },
+            {
+               '$set': {'g.$.lv': new_lv}
+            }
          )
          return new_lv, current_lv
 
@@ -137,28 +146,43 @@ class Level:
 
    async def GetUserLevel(self, user_id: int, guild_id: int) -> Optional[dict]:
       doc = await self._col.find_one(
-         {'_id': toInt(user_id), 'g.id': toInt(guild_id)},
+         {
+            '_id': toInt(user_id),
+            'g.id': toInt(guild_id)
+         },
          projection = {'g.$': 1}
       )
+
       if doc is None:
          return None
 
       entry = doc['g'][0]
-      return {'xp': entry['xp'], 'lv': entry['lv']}
+      return {
+         'xp': entry['xp'],
+         'lv': entry['lv']
+      }
 
    async def GetLeaderboard(self, guild_id: int, limit: int = 10) -> list[dict]:
       gid_ = toInt(guild_id)
 
       pipeline = [
-         {'$match':   {'g.id': gid_}},
-         {'$unwind':  '$g'},
-         {'$match':   {'g.id': gid_}},
-         {'$sort':    {'g.xp': -1}},
-         {'$limit':   limit},
-         {'$project': {'_id': 1, 'xp': '$g.xp', 'lv': '$g.lv'}},
+         {'$match': {'g.id': gid_}},
+         {'$unwind': '$g'},
+         {'$match': {'g.id': gid_}},
+         {'$sort': {'g.xp': -1}},
+         {'$limit': limit},
+         {'$project': {
+            '_id': 1,
+            'xp': '$g.xp',
+            'lv': '$g.lv'
+         }},
       ]
 
       return [
-         {'user_id': doc['_id'], 'xp': doc['xp'], 'lv': doc['lv']}
+         {
+            'user_id': doc['_id'],
+            'xp': doc['xp'],
+            'lv': doc['lv']
+         }
          async for doc in self._col.aggregate(pipeline)
       ]
