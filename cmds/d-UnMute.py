@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 from util.Btns import *
@@ -6,9 +7,9 @@ from util.Excp import *
 from util.Msgs import *
 
 class UnMute(commands.Cog):
-   from syst.SysMute import RemoveHardMute_
    def __init__(self, core):
       self.core = core
+      self.Mute = core.sMute
       self.ExcpForbidden = ButtonExcpForbidden()
 
    @app_commands.command(
@@ -23,7 +24,12 @@ class UnMute(commands.Cog):
       manage_roles = True,
       moderate_members = True
    )
-   async def unmute(self, interaction: discord.Interaction, user: discord.Member, reason: str = None):
+   async def unmute(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member,
+           reason: Optional[app_commands.Range[str, 1, 70]] = None
+   ):
       #
       ur_ = user.roles
       igr_ = interaction.guild.roles
@@ -73,6 +79,7 @@ class UnMute(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -92,29 +99,29 @@ class UnMute(commands.Cog):
       #
       try:
          if m_r in ur_:
-            await self.RemoveHardMute_(user, m_r) # safe
-            await user.remove_roles(m_r)
+            await self.Mute.RemoveMute_(user, m_r)
 
             await interaction.response.send_message(
                embed = unmute_(interaction, user, reason or 'None'),
                ephemeral = False,
                view = _delete
             )
+            return
 
          else:
             if hm_r in ur_:
-               await self.RemoveHardMute_(user, hm_r) # safe
-               await user.remove_roles(hm_r)
+               await self.Mute.RemoveHardMute_(user, hm_r)
 
                await interaction.response.send_message(
                   embed = unmute_(interaction, user, reason or 'None'),
                   ephemeral = False,
                   view = _delete
                )
+               return
 
             else:
                await interaction.response.send_message(
-                  embed = excpuseralrmute_(interaction, user),
+                  embed = excpuseralrmute_(interaction, user), # ?
                   ephemeral = True
                )
                return
@@ -125,12 +132,13 @@ class UnMute(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
             ephemeral = True
          )
-         print(f'UnMute: (permissions); {s}')
+         print(f'UnMute: (primary); {s}')
          return
 
 #
