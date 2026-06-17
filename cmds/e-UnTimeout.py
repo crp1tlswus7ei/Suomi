@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from datetime import datetime, timezone
 from discord import app_commands
 from discord.ext import commands
@@ -19,10 +20,16 @@ class UnTimeout(commands.Cog):
       user = 'User to be unmuted.',
       reason = 'Reason for unmuting.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       moderate_members = True
    )
-   async def untimeout(self, interaction: discord.Interaction, user: discord.Member, reason: str = None):
+   async def untimeout(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member,
+           reason: Optional[app_commands.Range[str, 1, 70]] = None
+   ):
       #
       ut_ = datetime.now(timezone.utc)
       _delete = ButtonDelete(interaction)
@@ -62,6 +69,7 @@ class UnTimeout(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -71,7 +79,7 @@ class UnTimeout(commands.Cog):
          return
 
       #
-      if user.timed_out_until <= ut_:
+      if user.timed_out_until is None or user.timed_out_until <= ut_:
          await interaction.response.send_message(
             embed = excpusernotimeout_(interaction, user),
             ephemeral = True
@@ -94,6 +102,7 @@ class UnTimeout(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
