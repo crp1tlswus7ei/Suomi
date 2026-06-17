@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from datetime import timedelta, datetime, timezone
 from discord import app_commands
 from discord.ext import commands
@@ -24,11 +25,15 @@ class Timeout(commands.Cog):
    @app_commands.default_permissions(
       moderate_members = True
    )
-   async def timeout(self, interaction: discord.Interaction, user: discord.Member, duration: int = 10, reason: str = None):
+   async def timeout(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member,
+           duration: Optional[app_commands.Range[int, 1, 10000]] = 10,
+           reason: Optional[app_commands.Range[str, 1, 70]] = None
+   ):
       #
       ut_ = datetime.now(timezone.utc)
-      uttl_ = user.timed_out_until - ut_
-      min_ = int(uttl_.total_seconds() // 60)
       _delete = ButtonDelete(interaction)
       #
       try:
@@ -53,7 +58,7 @@ class Timeout(commands.Cog):
             )
             return
 
-         if duration <= 0 or duration >= 10000:
+         if duration <= 0 or duration > 10000:
             await interaction.response.send_message(
                embed = excpnullduration_(interaction),
                ephemeral = True
@@ -74,7 +79,6 @@ class Timeout(commands.Cog):
             view = self.ExcpForbidden
          )
          return
-
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -84,7 +88,10 @@ class Timeout(commands.Cog):
          return
 
       #
-      if user.timed_out_until > ut_:
+      if user.timed_out_until is not None and user.timed_out_until > ut_:
+         uttl_ = user.timed_out_until - ut_
+         min_ = int(uttl_.total_seconds() // 60)
+
          await interaction.response.send_message(
             embed = excpuseralrtimeout_(interaction, user, min_),
             ephemeral = True
@@ -108,7 +115,6 @@ class Timeout(commands.Cog):
             view = self.ExcpForbidden
          )
          return
-
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
