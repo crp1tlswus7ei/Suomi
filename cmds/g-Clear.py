@@ -1,5 +1,6 @@
 import asyncio
 import discord
+from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 from util.Btns import *
@@ -18,10 +19,15 @@ class Clear(commands.Cog):
    @app_commands.describe(
       amount = 'Number of messages to delete; 10 by default.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       manage_messages = True
    )
-   async def clear(self, interaction: discord.Interaction, amount: int = 10):
+   async def clear(
+           self,
+           interaction: discord.Interaction,
+           amount: Optional[app_commands.Range[int, 1, 6000]] = 10
+   ):
       #
       _delete = ButtonDelete(interaction)
       #
@@ -33,7 +39,7 @@ class Clear(commands.Cog):
             )
             return
 
-         if amount <= 0 or amount > 10000:
+         if amount <= 0 or amount > 6000:
             await interaction.response.send_message(
                embed = excpnullamountinclear_(interaction),
                ephemeral = True
@@ -46,6 +52,7 @@ class Clear(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -59,13 +66,13 @@ class Clear(commands.Cog):
          embed = clearloading_(interaction),
          ephemeral = True
       )
-      await asyncio.sleep(1)
 
       #
       try:
          clr_ = await interaction.channel.purge(limit = amount)
          msgdel_ = len(clr_)
 
+         await asyncio.sleep(0.5)
          await interaction.edit_original_response(
             embed = clear_(interaction, msgdel_)
          )
@@ -76,6 +83,7 @@ class Clear(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.followup.send(
             embed = excperror_(interaction),
