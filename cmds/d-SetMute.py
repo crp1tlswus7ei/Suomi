@@ -21,10 +21,14 @@ class SetMute(commands.Cog):
       name = 'set_mute',
       description = 'Create Mute and Hard Mute roles managed by Suomi.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       administrator = True
    )
-   async def set_mute(self, interaction: discord.Interaction):
+   async def set_mute(
+           self,
+           interaction: discord.Interaction
+   ):
       #
       guild = interaction.guild
       igc_ = interaction.guild.channels
@@ -95,6 +99,7 @@ class SetMute(commands.Cog):
                   embed = excpchannel_(interaction),
                   ephemeral = True
                )
+               return
             except Exception as s:
                await interaction.followup.send(
                   embed = excperror_(interaction),
@@ -120,6 +125,7 @@ class SetMute(commands.Cog):
                   embed = excpchannel_(interaction),
                   ephemeral = True
                )
+               return
             except Exception as s:
                await interaction.followup.send(
                   embed = excperror_(interaction),
@@ -153,7 +159,7 @@ class SetMute(commands.Cog):
          return
 
       #
-      await asyncio.sleep(1)
+      await asyncio.sleep(0.5)
       await interaction.edit_original_response(
          embed = setmute_(interaction),
          view = _delete
