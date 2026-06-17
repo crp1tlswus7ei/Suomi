@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 from util.Btns import *
@@ -19,10 +20,16 @@ class LockChannel(commands.Cog):
       channel = 'Channel to block messages; Actual by default.',
       reason = 'Reason for lock.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       administrator = True
    )
-   async def lock_channel(self, interaction: discord.Interaction, channel: discord.TextChannel = None, reason: str = None):
+   async def lock_channel(
+           self,
+           interaction: discord.Interaction,
+           channel: discord.TextChannel = None,
+           reason: Optional[app_commands.Range[str, 1, 70]] = None
+   ):
       #
       channel = channel or interaction.channel
       oc_ = channel.overwrites_for(interaction.guild.default_role)
@@ -55,6 +62,7 @@ class LockChannel(commands.Cog):
                ephemeral = False,
                view = _delete
             )
+            return
 
       except discord.Forbidden:
          await interaction.response.send_message(
@@ -62,6 +70,7 @@ class LockChannel(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
