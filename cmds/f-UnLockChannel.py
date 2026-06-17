@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 from util.Btns import *
@@ -19,10 +20,16 @@ class UnLockChannel(commands.Cog):
       channel = 'Channel to unlock; Actual channel by default.',
       reason = 'Reason for unlock.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       administrator = True
    )
-   async def unlock_channel(self, interaction: discord.Interaction, channel: discord.TextChannel = None, reason: str = None):
+   async def unlock_channel(
+           self,
+           interaction: discord.Interaction,
+           channel: discord.TextChannel = None,
+           reason: Optional[app_commands.Range[str, 1, 70]] = None
+   ):
       #
       channel = channel or interaction.channel
       oc_ = channel.overwrites_for(interaction.guild.default_role)
@@ -63,6 +70,7 @@ class UnLockChannel(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
