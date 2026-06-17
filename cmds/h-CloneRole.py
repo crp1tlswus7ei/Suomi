@@ -1,4 +1,3 @@
-import asyncio
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -19,10 +18,15 @@ class CloneRole(commands.Cog):
    @app_commands.describe(
       role = 'Role to be cloned.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       manage_roles = True
    )
-   async def clone_role(self, interaction: discord.Interaction, role: discord.Role):
+   async def clone_role(
+           self,
+           interaction: discord.Interaction,
+           role: discord.Role
+   ):
       #
       _delete = ButtonDelete(interaction)
       #
@@ -61,6 +65,7 @@ class CloneRole(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbiden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -90,6 +95,7 @@ class CloneRole(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbiden
          )
+         return
       except Exception as s:
          await interaction.followup.send(
             embed = excperror_(interaction),
