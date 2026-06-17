@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 from util.Btns import *
@@ -6,9 +7,9 @@ from util.Excp import *
 from util.Msgs import *
 
 class HardMute(commands.Cog):
-   from syst.SysMute import ApplyHardMute_
    def __init__(self, core):
       self.core = core
+      self.Mute = core.sMute
       self.ExcpForbidden = ButtonExcpForbidden()
 
    @app_commands.command(
@@ -19,11 +20,17 @@ class HardMute(commands.Cog):
       user = 'User to be muted.',
       reason = 'Reason for the mute.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       manage_roles = True,
       moderate_members = True
    )
-   async def hard_mute(self, interaction: discord.Interaction, user: discord.Member, reason: str = None):
+   async def hard_mute(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member,
+           reason: Optional[app_commands.Range[str, 1, 70]] = None
+   ):
       #
       ur_ = user.roles
       igr_ = interaction.guild.roles
@@ -74,6 +81,7 @@ class HardMute(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -93,6 +101,13 @@ class HardMute(commands.Cog):
       if m_r in ur_:
          await interaction.response.send_message(
             embed = excpuserinhardmute_(interaction, user),
+            ephemeral = True
+         )
+         return
+
+      if hm_r in ur_:
+         await interaction.response.send_message(
+            embed = excpuseralrmute_(interaction, user),
             ephemeral = True
          )
          return
@@ -120,21 +135,13 @@ class HardMute(commands.Cog):
 
       #
       try:
-         if hm_r not in ur_:
-            await self.ApplyHardMute_(user, hm_r) # safe
-            await user.add_roles(hm_r)
+         await self.Mute.ApplyHardMute_(user, hm_r)
 
-            await interaction.edit_original_response(
-               embed = hardmute_(interaction, user, reason or 'None'),
-               view = _delete
-            )
-
-         else:
-            await interaction.edit_original_response(
-               embed = excpuseralrmute_(interaction, user),
-               view = _delete
-            )
-            return
+         await interaction.edit_original_response(
+            embed = hardmute_(interaction, user, reason or 'None'),
+            view = _delete
+         )
+         return
 
       except discord.Forbidden:
          await interaction.followup.send(
@@ -142,6 +149,7 @@ class HardMute(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.followup.send(
             embed = excperror_(interaction),
