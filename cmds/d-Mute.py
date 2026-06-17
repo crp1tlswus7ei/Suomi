@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 from util.Btns import *
@@ -8,6 +9,7 @@ from util.Msgs import *
 class Mute(commands.Cog):
    def __init__(self, core):
       self.core = core
+      self.Mute = core.sMute
       self.ExcpForbidden = ButtonExcpForbidden()
 
    @app_commands.command(
@@ -18,11 +20,17 @@ class Mute(commands.Cog):
       user = 'User to be muted.',
       reason = 'Reason for the mute.'
    )
+   @app_commands.guild_only()
    @app_commands.default_permissions(
       manage_roles = True,
       moderate_members = True
    )
-   async def mute(self, interaction: discord.Interaction, user: discord.Member, reason: str = None):
+   async def mute(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member,
+           reason: Optional[app_commands.Range[str, 1, 70]] = None
+   ):
       #
       ur_ = user.roles
       igr_ = interaction.guild.roles
@@ -72,6 +80,7 @@ class Mute(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
@@ -88,30 +97,32 @@ class Mute(commands.Cog):
          )
          return
 
-      if hm_r in ur_:
-         await interaction.response.send_message(
-            embed = excpuseralrmute_(interaction, user),
-            ephemeral = True
-         )
-         return
-
       #
       try:
-         if m_r not in user.roles:
-            await user.add_roles(m_r)
-
+         if hm_r in ur_:
             await interaction.response.send_message(
-               embed = mute_(interaction, user, reason or 'None'),
-               ephemeral = False,
-               view = _delete
-            )
-
-         else:
-            await interaction.response.send_message(
-               embed = excpuseralrmute_(interaction, user),
+               embed = excpuseralrhardmute_(interaction, user),
                ephemeral = True
             )
             return
+
+         else:
+            if m_r not in ur_:
+               await self.Mute.ApplyMute(user, m_r)
+
+               await interaction.response.send_message(
+                  embed = mute_(interaction, user, reason or 'None'),
+                  ephemeral = False,
+                  view = _delete
+               )
+               return
+
+            else:
+               await interaction.response.send_message(
+                  embed = excpuseralrmute_(interaction, user),
+                  ephemeral = True
+               )
+               return
 
       except discord.Forbidden:
          await interaction.response.send_message(
@@ -119,6 +130,7 @@ class Mute(commands.Cog):
             ephemeral = True,
             view = self.ExcpForbidden
          )
+         return
       except Exception as s:
          await interaction.response.send_message(
             embed = excperror_(interaction),
