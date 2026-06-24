@@ -4,14 +4,14 @@ import math
 import discord
 from discord import app_commands
 from discord.ext import commands
+from syst.SysLevel import *
 from util.Btns import *
 from util.Excp import *
-from syst.SysLevel import *
 
 class Rank(commands.Cog):
    def __init__(self, core):
       self.core = core
-      self.levels = core.levels
+      self.Level = core.sLevel
 
    @app_commands.command(
       name = 'rank',
@@ -21,11 +21,15 @@ class Rank(commands.Cog):
       user = 'User to review rank.'
    )
    @app_commands.guild_only()
-   async def rank(self, interaction: discord.Interaction, user: discord.Member = None):
+   async def rank(
+           self,
+           interaction: discord.Interaction,
+           user: discord.Member = None
+   ):
       #
-      _delete = ButtonDelete(interaction)
       target = user or interaction.user
-      data = await self.levels.GetUserLevel(target.id, interaction.guild.id)
+      data = await self.Level.GetUserLevel(target.id, interaction.guild.id)
+      _delete = ButtonDelete(interaction)
 
       if data is None:
          await interaction.response.send_message(
