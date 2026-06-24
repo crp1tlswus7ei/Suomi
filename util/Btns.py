@@ -1,8 +1,7 @@
 """
-Ignore the warning about the unused discord import statement;
-IDK and IDC what will happen if it weren't there. Also, ignore the warning
-that the button parameter isn't used; without this parameter,
-the buttons won't work properly, so don't delete them.
+Ignore the warning that the button parameter isn't used;
+without this parameter, the buttons won't work properly,
+so don't delete them.
 """
 
 import discord
@@ -49,10 +48,14 @@ class HelpView(discord.ui.View):
 
    @discord.ui.button(
       emoji = '<:white_left:1484014305241202738>',
-      style = discord.ButtonStyle.gray,
+      style = discord.ButtonStyle.grey,
       disabled = True
    )
-   async def _left(self, interaction: discord.Interaction, button: discord.ui.Button):
+   async def _left(
+           self,
+           interaction: discord.Interaction,
+           button: discord.ui.Button
+   ):
       if self.page > 0:
          self.page -= 1
 
@@ -60,18 +63,26 @@ class HelpView(discord.ui.View):
 
    @discord.ui.button(
       emoji = '<:white_cross:1405656979266867210>',
-      style = discord.ButtonStyle.red,
+      style = discord.ButtonStyle.grey,
    )
-   async def _delete(self, interaction: discord.Interaction, button: discord.ui.Button):
+   async def _delete(
+           self,
+           interaction: discord.Interaction,
+           button: discord.ui.Button
+   ):
       await interaction.response.defer()
       await interaction.message.delete()
       self.stop()
 
    @discord.ui.button(
       emoji = '<:white_right:1501748298845917205>',
-      style = discord.ButtonStyle.gray
+      style = discord.ButtonStyle.grey
    )
-   async def _right(self, interaction: discord.Interaction, button: discord.ui.Button):
+   async def _right(
+           self,
+           interaction: discord.Interaction,
+           button: discord.ui.Button
+   ):
       if self.page < len(self.pages) - 1:
          self.page += 1
 
@@ -134,7 +145,7 @@ class MenuWarns(discord.ui.View):
 
    @discord.ui.button(
       emoji = '<:white_left:1484014305241202738>',
-      style = discord.ButtonStyle.gray,
+      style = discord.ButtonStyle.grey,
    )
    async def btn_prev(
            self,
@@ -146,7 +157,7 @@ class MenuWarns(discord.ui.View):
 
    @discord.ui.button(
       emoji = '<:white_right:1501748298845917205>',
-      style = discord.ButtonStyle.gray
+      style = discord.ButtonStyle.grey
    )
    async def btn_next(
            self,
@@ -158,7 +169,7 @@ class MenuWarns(discord.ui.View):
 
    @discord.ui.button(
       emoji = '<:white_cross:1405656979266867210>',
-      style = discord.ButtonStyle.red
+      style = discord.ButtonStyle.grey
    )
    async def btn_delete(
            self,
@@ -190,18 +201,26 @@ class MenuAdvice(discord.ui.View):
 
    @discord.ui.button(
       emoji = '<:white_check:1470874033863262220>',
-      style = discord.ButtonStyle.green,
+      style = discord.ButtonStyle.grey,
    )
-   async def _accept(self, interaction: discord.Interaction, button: discord.ui.Button):
+   async def _accept(
+           self,
+           interaction: discord.Interaction,
+           button: discord.ui.Button
+   ):
       self.confirmed = True
       await interaction.response.defer()
       self.stop()
 
    @discord.ui.button(
       emoji = '<:white_cross:1405656979266867210>',
-      style = discord.ButtonStyle.red,
+      style = discord.ButtonStyle.grey,
    )
-   async def _denied(self, interaction: discord.Interaction, button: discord.ui.Button):
+   async def _denied(
+           self,
+           interaction: discord.Interaction,
+           button: discord.ui.Button
+   ):
       await interaction.response.defer()
       self.stop()
 
@@ -228,9 +247,13 @@ class ButtonDelete(discord.ui.View):
 
    @discord.ui.button(
       emoji = '<:white_cross:1405656979266867210>',
-      style = discord.ButtonStyle.red,
+      style = discord.ButtonStyle.grey,
    )
-   async def _delete(self, interaction: discord.Interaction, button: discord.ui.Button):
+   async def _delete(
+           self,
+           interaction: discord.Interaction,
+           button: discord.ui.Button
+   ):
       await interaction.response.defer()
       await interaction.message.delete()
       self.stop()
@@ -254,9 +277,13 @@ class ButtonDeleteCtx(discord.ui.View):
 
    @discord.ui.button(
       emoji = '<:white_cross:1405656979266867210>',
-      style = discord.ButtonStyle.red,
+      style = discord.ButtonStyle.grey,
    )
-   async def _delete(self, interaction: discord.Interaction, button: discord.ui.Button):
+   async def _delete(
+           self,
+           interaction: discord.Interaction,
+           button: discord.ui.Button
+   ):
       await interaction.response.defer()
       await interaction.message.delete()
 

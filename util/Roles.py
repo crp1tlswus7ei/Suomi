@@ -26,6 +26,9 @@ async def CreateHardMuteRole(self, interaction: discord.Interaction):
    )
 
 async def CloneRole(self, interaction: discord.Interaction, role: discord.Role):
+   #
+   guild = interaction.guild
+   #
    role_ = await interaction.guild.create_role(
       name = f'{role.name} (clone)',
       permissions = role.permissions,
@@ -34,9 +37,19 @@ async def CloneRole(self, interaction: discord.Interaction, role: discord.Role):
       mentionable = role.mentionable,
       reason = f'CloneRole by Suomi; {interaction.user.display_name}'
    )
-   await role_.edit(
-      position = role.position - 1,
-   )
+   bot_role = guild.me.top_role
+   roles = list(reversed(guild.roles))
+   roles.remove(role_)
+
+   bot_idx = roles.index(bot_role)
+   role_idx = roles.index(role)
+   insert_idx = max(bot_idx, role_idx) + 1
+
+   newroles = roles[:insert_idx] + [role_] + roles[insert_idx:]
+   positions = {r: i for i, r in enumerate(reversed(newroles))}
+
+   await guild.edit_role_positions(positions = positions)
+   return role_
 
 #
 

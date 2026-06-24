@@ -196,6 +196,16 @@ def excpuseralrmute_(interaction: discord.Interaction, user: discord.Member) -> 
       color = discord.Color.from_str('#6B2E08')
    )
    embed.set_footer(
+      text = 'Remove any Mute to apply this.'
+   )
+   return embed
+
+def excpuseralrhardmute_(interaction: discord.Interaction, user: discord.Member) -> discord.Member:
+   embed = discord.Embed(
+      title = f'{user.display_name} already muted.',
+      color = discord.Color.from_str('#6B2E08')
+   )
+   embed.set_footer(
       text = 'Remove HardMute to apply Mute.'
    )
    return embed
@@ -212,16 +222,6 @@ def excpusernotimeout_(interaction: discord.Interaction, user: discord.Member) -
    embed = discord.Embed(
       title = f'{user.display_name} has no timeout.',
       color = discord.Color.from_str('#6B2E08')
-   )
-   return embed
-
-def excpuserinhardmute_(interaction: discord.Interaction, user: discord.Member) -> discord.Member:
-   embed = discord.Embed(
-      title = f'{user.display_name} already muted.',
-      color = discord.Color.from_str('#6B2E08')
-   )
-   embed.set_footer(
-      text = 'Remove Mutee to apply HardMute.'
    )
    return embed
 

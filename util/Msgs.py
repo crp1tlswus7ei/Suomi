@@ -65,7 +65,7 @@ def HelpMenuInfo_(interaction: discord.Interaction) -> discord.Embed:
                     'If you want to see my code, visit my GitHub repository. '
                     'Feel free to install it locally, customize it, or add commands, '
                     'and check documentation to learn more about me.',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#26215C')
    )
    embed.add_field(
       name = 'My links',
@@ -81,7 +81,7 @@ def HelpMenuCommands_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
       title = 'About Commands',
       description = f'I currently have 21 commands, all in the moderation category.',
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#26215C')
    )
    embed.add_field(
       name = 'Commands',
@@ -98,7 +98,7 @@ def HelpMenuSupport_(interaction: discord.Interaction) -> discord.Embed:
       description = "I'll provide comprehensive support for any issues you encounter "
                     "with Suomi or the code, and i'd also appreciate any feedback you "
                     "have about your experience. Thank you for supporting this project.",
-      color = discord.Color.light_gray()
+      color = discord.Color.from_str('#26215C')
    )
    embed.add_field(
       name = 'Support Links',
