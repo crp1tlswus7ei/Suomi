@@ -297,6 +297,16 @@ def excproledefaultinmass_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
+def excproledefaultinremovemass_(interaction: discord.Interaction) -> discord.Embed:
+   embed = discord.Embed(
+      title = "You can't do that.",
+      color = discord.Color.from_str('#791F1F')
+   )
+   embed.set_footer(
+      text = 'Everyone role cannot be removed.'
+   )
+   return embed
+
 #
 
 def excpiderror_(interaction: discord.Interaction) -> discord.Embed:
@@ -413,6 +423,16 @@ def excpmenumassrole_(interaction: discord.Interaction) -> discord.Embed:
    )
    embed.set_footer(
       text = 'No roles were assigned to any users or bots.'
+   )
+   return embed
+
+def excpmenuremovemass_(interaction: discord.Interaction) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'RemoveMass: Operation Canceled.',
+      color = discord.Color.from_str('#6B2E08')
+   )
+   embed.set_footer(
+      text = 'No roles were removed from any users or bots.'
    )
    return embed
 
