@@ -8,6 +8,8 @@ of space :)
 from __future__ import annotations
 
 import os
+import discord
+from discord import app_commands
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import ASCENDING, IndexModel
@@ -22,6 +24,21 @@ COL_NAME = 'roles'
 def toInt(snowflake: str) -> int:
    return snowflake
 
+async def autoTimeout(interaction: discord.Interaction, current: str):
+   presets = [
+      ('30 minutes', 30),
+      ('1 hour', 60),
+      ('3 hours', 180),
+      ('12 hours', 720),
+      ('24 hours', 1440),
+      ('7 days', 10080),
+      ('28 days', 40315)
+   ]
+   return [
+      app_commands.Choice(name = name, value = value)
+      for name, value in presets
+      if current.lower() in name.lower()
+   ][:25]
 #
 
 class Mute:
