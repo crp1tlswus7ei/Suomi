@@ -461,7 +461,7 @@ def cloneroleloading_(interaction: discord.Interaction) -> discord.Embed:
 
 def massrole_(interaction: discord.Interaction, role: discord.Role) -> discord.Embed:
    embed = discord.Embed(
-      title = 'Mass Role: Done',
+      title = 'MassRole: Done',
       color = discord.Color.from_str('#06402B')
    )
    embed.set_footer(
@@ -471,7 +471,7 @@ def massrole_(interaction: discord.Interaction, role: discord.Role) -> discord.E
 
 def massroleloading_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
-      title = 'Mass Role: In progress...',
+      title = 'MassRole: In progress...',
       color = discord.Color.from_str('#0C447C')
    )
    embed.set_footer(
@@ -486,6 +486,36 @@ def massrolecaution_(interaction: discord.Interaction, role: discord.Role) -> di
    )
    embed.set_footer(
       text = f'This will add "{role}" to all users, including Bots.'
+   )
+   return embed
+
+def removemass_(interaction: discord.Interaction, role: discord.Role) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'RemoveMass: Done',
+      color = discord.Color.from_str('#06402B')
+   )
+   embed.set_footer(
+      text = f'"{role}" removed globally.'
+   )
+   return embed
+
+def removemassloading_(interaction: discord.Interaction) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'RemoveMass: In progress...',
+      color = discord.Color.from_str('#0C447C')
+   )
+   embed.set_footer(
+      text = 'This might take a few minutes.'
+   )
+   return embed
+
+def removemasscaution_(interaction: discord.Interaction, role: discord.Role) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'RemoveMass: Caution',
+      color = discord.Color.from_str('#633806')
+   )
+   embed.set_footer(
+      text = f'This will remove "{role}" for all users, including Bots.'
    )
    return embed
 
