@@ -6,7 +6,10 @@ overUnlock = discord.PermissionOverwrite(send_messages = True)
 #
 
 async def CreateMuteRole(self, interaction: discord.Interaction):
-   await interaction.guild.create_role(
+   #
+   guild = interaction.guild
+   #
+   role_ = await interaction.guild.create_role(
       name = 'Mute',
       permissions = discord.Permissions(66560),
       colour = discord.Color.dark_red(),
@@ -14,9 +17,22 @@ async def CreateMuteRole(self, interaction: discord.Interaction):
       mentionable = False,
       reason = 'Mute role (keep all roles).'
    )
+   bot_role = guild.me.top_role
+   roles = list(reversed(guild.roles))
+   roles.remove(role_)
+
+   insert_idx = roles.index(bot_role) + 1
+   newroles = roles[:insert_idx] + [role_] + roles[insert_idx:]
+   positions = {r: i for i, r in enumerate(reversed(newroles))}
+
+   await guild.edit_role_positions(positions)
+   return role_
 
 async def CreateHardMuteRole(self, interaction: discord.Interaction):
-   await interaction.guild.create_role(
+   #
+   guild = interaction.guild
+   #
+   role_ = await interaction.guild.create_role(
       name = 'Hard Mute',
       permissions = discord.Permissions(66560),
       colour = discord.Color.dark_red(),
@@ -24,6 +40,16 @@ async def CreateHardMuteRole(self, interaction: discord.Interaction):
       mentionable = False,
       reason = 'Hard mute role (remove all roles).'
    )
+   bot_role = guild.me.top_role
+   roles = list(reversed(guild.roles))
+   roles.remove(role_)
+
+   insert_idx = roles.index(bot_role) + 1
+   newroles = roles[:insert_idx] + [role_] + roles[insert_idx:]
+   positions = {r: i for i, r in enumerate(reversed(newroles))}
+
+   await guild.edit_role_positions(positions)
+   return role_
 
 async def CloneRole(self, interaction: discord.Interaction, role: discord.Role):
    #
