@@ -308,3 +308,13 @@ class ButtonExcpInteraction(discord.ui.View):
             url = 'https://discordpy.readthedocs.io/en/stable/api.html#discord.InteractionResponded'
          )
       )
+
+class ButtonExcpHTTP(discord.ui.View):
+   def __init__(self):
+      super().__init__(timeout = None)
+      self.add_item(
+         discord.ui.Button(
+            label = 'Documentation',
+            url = 'https://discordpy.readthedocs.io/en/stable/api.html?highlight=http#discord.HTTPException'
+         )
+      )
