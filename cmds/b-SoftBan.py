@@ -2,6 +2,7 @@ import discord
 from typing import Optional
 from discord import app_commands
 from discord.ext import commands
+from syst.SysExcp import ExcpStage, Stage
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
@@ -31,8 +32,10 @@ class SoftBan(commands.Cog):
    ):
       #
       _delete = ButtonDelete(interaction)
+      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
+      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
       #
-      try:
+      async with _prms:
          if user == self.core.user:
             await interaction.response.send_message(
                embed = excpsuomiself_(interaction),
@@ -61,23 +64,11 @@ class SoftBan(commands.Cog):
             )
             return
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'SoftBan: (permissions); {s}')
+      if _prms.handled:
          return
 
       #
-      try:
+      async with _pk:
          await user.ban(reason = reason)
          await user.unban()
 
@@ -87,19 +78,7 @@ class SoftBan(commands.Cog):
             view = _delete
          )
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'SoftBan: (primary); {s}')
+      if _pk.handled:
          return
 
 #
