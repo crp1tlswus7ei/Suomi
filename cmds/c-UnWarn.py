@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from syst.SysExcp import ExcpStage, Stage
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
@@ -37,8 +38,10 @@ class UnWarn(commands.Cog):
       amount = max(1, min(amount, 10))
       rmc = min(amount, len(warns_))
       _delete = ButtonDelete(interaction)
+      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
+      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
       #
-      try:
+      async with _prms:
          if user == self.core.user:
             await interaction.response.send_message(
                embed = excpsuomiself_(interaction),
@@ -74,19 +77,7 @@ class UnWarn(commands.Cog):
             )
             return
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'UnWarn: (permissions); {s}')
+      if _prms.handled:
          return
 
       #
@@ -98,7 +89,7 @@ class UnWarn(commands.Cog):
          return
 
       #
-      try:
+      async with _pk:
          for _ in range(rmc):
             await self.Warn.RemoveWarn_(user.id, interaction.guild.id, 0)
 
@@ -108,19 +99,7 @@ class UnWarn(commands.Cog):
             view = _delete
          )
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'UnWarn: (primary); {s}')
+      if _pk.handled:
          return
 
 #
