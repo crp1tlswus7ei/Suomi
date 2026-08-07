@@ -10,6 +10,7 @@ class Stage:
    PERMISSIONS = 'permissions'
    MRSETPERMS = '[m_r] set_permissions'
    HMRSETPERMS = '[hm_r] set_permissions'
+
 #
 
 async def _forbidden_(interaction, context, exc, send):
