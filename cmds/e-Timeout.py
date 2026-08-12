@@ -1,8 +1,10 @@
 import discord
 from typing import Optional
-from datetime import timedelta, datetime, timezone
 from discord import app_commands
 from discord.ext import commands
+from datetime import timedelta, datetime, timezone
+from syst.SysExcp import ExcpStage, Stage
+from syst.SysMute import autoTimeout
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
@@ -21,6 +23,9 @@ class Timeout(commands.Cog):
       duration = 'Minutes of mute; 10 minutes by default.',
       reason = 'Reason for the mute.'
    )
+   @app_commands.autocomplete(
+      duration = autoTimeout
+   )
    @app_commands.guild_only()
    @app_commands.default_permissions(
       moderate_members = True
@@ -29,14 +34,16 @@ class Timeout(commands.Cog):
            self,
            interaction: discord.Interaction,
            user: discord.Member,
-           duration: Optional[app_commands.Range[int, 1, 10000]] = 10,
+           duration: Optional[app_commands.Range[int, 1, 40315]] = 10,
            reason: Optional[app_commands.Range[str, 1, 70]] = None
    ):
       #
       ut_ = datetime.now(timezone.utc)
       _delete = ButtonDelete(interaction)
+      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
+      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
       #
-      try:
+      async with _prms:
          if user == self.core.user:
             await interaction.response.send_message(
                embed = excpsuomiself_(interaction),
@@ -58,7 +65,7 @@ class Timeout(commands.Cog):
             )
             return
 
-         if duration <= 0 or duration > 10000:
+         if duration <= 0 or duration > 40315:
             await interaction.response.send_message(
                embed = excpnullduration_(interaction),
                ephemeral = True
@@ -72,19 +79,7 @@ class Timeout(commands.Cog):
             )
             return
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'Timeout: (permissions); {s}')
+      if _prms.handled:
          return
 
       #
@@ -99,7 +94,7 @@ class Timeout(commands.Cog):
          return
 
       #
-      try:
+      async with _pk:
          await user.timeout(timedelta(minutes = duration))
 
          await interaction.response.send_message(
@@ -108,19 +103,7 @@ class Timeout(commands.Cog):
             view = _delete
          )
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'Timeout: (primary); {s}')
+      if _pk.handled:
          return
 
 #
