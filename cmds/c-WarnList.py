@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from syst.SysExcp import ExcpStage, Stage
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
@@ -20,6 +21,7 @@ class WarnList(commands.Cog):
    )
    @app_commands.guild_only()
    @app_commands.default_permissions(
+      moderate_members = True,
       manage_roles = True
    )
    async def warn_list(
@@ -29,8 +31,11 @@ class WarnList(commands.Cog):
    ):
       #
       user = user or interaction.user
+      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
+      _sec = ExcpStage(interaction, self, Stage.SECONDARY)
+      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
       #
-      try:
+      async with _prms:
          if user == self.core.user:
             await interaction.response.send_message(
                embed = excpsuomiself_(interaction),
@@ -45,30 +50,17 @@ class WarnList(commands.Cog):
             )
             return
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'WarnList: (permissions); {s}')
+      if _prms.handled:
          return
 
       #
-      try:
-         warns: dict = await self.Warn.GetWarns_(user.id, interaction.guild_id)
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
+      async with _sec:
+         warns: dict = await self.Warn.GetWarns_(
+            user.id,
+            interaction.guild_id
          )
-         print(f'WarnList: (secondary); {s}')
+
+      if _sec.handled:
          return
 
       #
@@ -80,28 +72,16 @@ class WarnList(commands.Cog):
          return
 
       #
-      try:
+      async with _pk:
          view = MenuWarns(interaction, user, warns)
 
          await interaction.response.send_message(
-            embed = view._buildEmbed(), # safe
+            embed = view.embeds[0],
             view = view,
             ephemeral = False
          )
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'WarnList: (primary); {s}')
+      if _pk.handled:
          return
 
 #
