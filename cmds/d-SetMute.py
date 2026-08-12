@@ -1,7 +1,7 @@
-import asyncio
 import discord
 from discord import app_commands
 from discord.ext import commands
+from syst.SysExcp import ExcpStage, Stage
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
@@ -30,11 +30,14 @@ class SetMute(commands.Cog):
            interaction: discord.Interaction
    ):
       #
-      guild = interaction.guild
-      igc_ = interaction.guild.channels
       igr_ = interaction.guild.roles
+      igc_ = interaction.guild.channels
       _view = MenuAdvice(interaction)
       _delete = ButtonDelete(interaction)
+      _cmr = ExcpStage(interaction, self, Stage.CMR)
+      _mr = ExcpStage(interaction, self, Stage.MRSETPERMS)
+      _hmr = ExcpStage(interaction, self, Stage.HMRSETPERMS)
+      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
 
       m_r = discord.utils.get(
          interaction.guild.roles,
@@ -73,7 +76,6 @@ class SetMute(commands.Cog):
             view = _delete
          )
          return
-
       else:
          await interaction.edit_original_response(
             embed = setmuteloading_(interaction),
@@ -82,89 +84,47 @@ class SetMute(commands.Cog):
          pass
 
       #
-      if not m_r:
+      async with _cmr:
          await self.CreateMuteRole(interaction) # safe
          m_r = discord.utils.get(
             interaction.guild.roles,
             name = 'Mute'
          )
          for channel in igc_:
-            try:
+            async with _mr:
                await channel.set_permissions(
                   target = m_r,
                   overwrite = self.m_over
                )
-            except discord.Forbidden:
-               await interaction.followup.send(
-                  embed = excpchannel_(interaction),
-                  ephemeral = True
-               )
-               return
-            except Exception as s:
-               await interaction.followup.send(
-                  embed = excperror_(interaction),
-                  ephemeral = True
-               )
-               print(f'SetMute: [m_r] (set_permissions); {s}')
+            if _mr.handled:
                return
 
-      if not hm_r:
          await self.CreateHardMuteRole(interaction) # safe
          hm_r = discord.utils.get(
             interaction.guild.roles,
             name = 'Hard Mute'
          )
          for channel in igc_:
-            try:
+            async with _hmr:
                await channel.set_permissions(
                   target = hm_r,
                   overwrite = self.hm_over
                )
-            except discord.Forbidden:
-               await interaction.followup.send(
-                  embed = excpchannel_(interaction),
-                  ephemeral = True
-               )
-               return
-            except Exception as s:
-               await interaction.followup.send(
-                  embed = excperror_(interaction),
-                  ephemeral = True
-               )
-               print(f'SetMute: [hm_r] (set_permissions); {s}')
+            if _hmr.handled:
                return
 
-      #
-      bot_role = guild.me.top_role
-      roles = list(reversed(guild.roles))
-      bot_idx = roles.index(bot_role)
-      newroles = (
-         roles[:bot_idx + 1] + [m_r, hm_r] +
-         [r for r in roles[bot_idx + 1:] if r != (m_r, hm_r)]
-      )
-      positions = {}
-      for i, role in enumerate(reversed(newroles)):
-         positions[role] = i
-
-      #
-      try:
-         await guild.edit_role_positions(positions)
-
-      except Exception as s:
-         await interaction.followup.send(
-            embed = excprolesetperms_(interaction),
-            ephemeral = True
-         )
-         print(f'SetMute: (hierarchy); {s}')
+      if _cmr.handled:
          return
 
       #
-      await asyncio.sleep(0.5)
-      await interaction.edit_original_response(
-         embed = setmute_(interaction),
-         view = _delete
-      )
-      return
+      async with _pk:
+         await interaction.edit_original_response(
+            embed = setmute_(interaction),
+            view = _delete
+         )
+
+      if _pk.handled:
+         return
 
 #
 async def setup(core):
