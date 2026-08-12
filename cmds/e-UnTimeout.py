@@ -1,8 +1,8 @@
 import discord
 from typing import Optional
-from datetime import datetime, timezone
 from discord import app_commands
 from discord.ext import commands
+from syst.SysExcp import ExcpStage, Stage
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
@@ -33,8 +33,10 @@ class UnTimeout(commands.Cog):
       #
       ut_ = datetime.now(timezone.utc)
       _delete = ButtonDelete(interaction)
+      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
+      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
       #
-      try:
+      async with _prms:
          if user == self.core.user:
             await interaction.response.send_message(
                embed = excpsuomiself_(interaction),
@@ -63,19 +65,7 @@ class UnTimeout(commands.Cog):
             )
             return
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'UnTimeout: (permissions); {s}')
+      if _prms.handled:
          return
 
       #
@@ -87,7 +77,7 @@ class UnTimeout(commands.Cog):
          return
 
       #
-      try:
+      async with _pk:
          await user.timeout(None)
 
          await interaction.response.send_message(
@@ -96,19 +86,7 @@ class UnTimeout(commands.Cog):
             view = _delete
          )
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'UnTimeout: (primary); {s}')
+      if _pk.handled:
          return
 
 #
