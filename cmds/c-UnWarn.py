@@ -22,6 +22,7 @@ class UnWarn(commands.Cog):
    )
    @app_commands.guild_only()
    @app_commands.default_permissions(
+      moderate_members = True,
       manage_roles = True
    )
    async def unwarn(
