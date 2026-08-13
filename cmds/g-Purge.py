@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from syst.SysExcp import ExcpStage, Stage
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
@@ -19,8 +20,8 @@ class Purge(commands.Cog):
    )
    @app_commands.guild_only()
    @app_commands.default_permissions(
-      manage_messages = True,
-      moderate_members = True
+      moderate_members = True,
+      manage_messages = True
    )
    async def purge(
            self,
@@ -29,12 +30,14 @@ class Purge(commands.Cog):
    ):
       #
       _delete = ButtonDelete(interaction)
+      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
+      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
 
       def check_user(msg):
          return msg.author.id == user.id
 
       #
-      try:
+      async with _prms:
          if user == self.core.user:
             await interaction.response.send_message(
                embed = excpsuomiself_(interaction),
@@ -63,19 +66,7 @@ class Purge(commands.Cog):
             )
             return
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'Purge: (permissions); {s}')
+      if _prms.handled:
          return
 
       # original
@@ -85,7 +76,7 @@ class Purge(commands.Cog):
       )
 
       #
-      try:
+      async with _pk:
          purg_ = await interaction.channel.purge(
             limit = 7049,
             check = check_user
@@ -96,19 +87,7 @@ class Purge(commands.Cog):
             embed = purge_(interaction, user, msgdel_)
          )
 
-      except discord.Forbidden:
-         await interaction.followup.send(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.followup.send(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'Purge: (primary); {s}')
+      if _pk.handled:
          return
 
 #
