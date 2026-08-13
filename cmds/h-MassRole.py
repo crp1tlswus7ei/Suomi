@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from syst.SysExcp import ExcpStage, Stage
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
@@ -13,7 +14,7 @@ class MassRole(commands.Cog):
 
    @app_commands.command(
       name = 'mass_role',
-      description = 'Assign any role you want to all users.'
+      description = 'Assign any role to all users.'
    )
    @app_commands.describe(
       role = 'Role to assign globally.'
@@ -30,8 +31,10 @@ class MassRole(commands.Cog):
       members = interaction.guild.members
       _view = MenuAdvice(interaction)
       _delete = ButtonDelete(interaction)
+      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
+      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
       #
-      try:
+      async with _prms:
          if role == interaction.guild.me.top_role:
             await interaction.response.send_message(
                embed = excpsuomirole_(interaction),
@@ -60,19 +63,7 @@ class MassRole(commands.Cog):
             )
             return
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'MassRole: (permissions); {s}')
+      if _prms.handled:
          return
 
       # original
@@ -89,7 +80,6 @@ class MassRole(commands.Cog):
             view = _delete
          )
          return
-
       else:
          await interaction.edit_original_response(
             embed = massroleloading_(interaction),
@@ -98,7 +88,7 @@ class MassRole(commands.Cog):
          pass
 
       #
-      try:
+      async with _pk:
          for member in members:
             if role in member.roles:
                continue
@@ -111,19 +101,7 @@ class MassRole(commands.Cog):
             view = _delete
          )
 
-      except discord.Forbidden:
-         await interaction.followup.send(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.followup.send(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'MassRole: (permissions); {s}')
+      if _pk.handled:
          return
 
 #
