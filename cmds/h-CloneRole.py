@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from syst.SysExcp import ExcpStage, Stage
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
@@ -20,7 +21,8 @@ class CloneRole(commands.Cog):
    )
    @app_commands.guild_only()
    @app_commands.default_permissions(
-      manage_roles = True
+      manage_roles = True,
+      manage_guild = True,
    )
    async def clone_role(
            self,
@@ -29,8 +31,10 @@ class CloneRole(commands.Cog):
    ):
       #
       _delete = ButtonDelete(interaction)
+      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
+      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
       #
-      try:
+      async with _prms:
          if role == interaction.guild.me.top_role:
             await interaction.response.send_message(
                embed = excpsuomirole_(interaction),
@@ -59,19 +63,7 @@ class CloneRole(commands.Cog):
             )
             return
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbiden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'CloneRole: (permissions); {s}')
+      if _prms.handled:
          return
 
       # original
@@ -81,7 +73,7 @@ class CloneRole(commands.Cog):
       )
 
       #
-      try:
+      async with _pk:
          await self.CloneRole(interaction, role) # safe
 
          await interaction.edit_original_response(
@@ -89,19 +81,7 @@ class CloneRole(commands.Cog):
             view = _delete
          )
 
-      except discord.Forbidden:
-         await interaction.followup.send(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbiden
-         )
-         return
-      except Exception as s:
-         await interaction.followup.send(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'CloneRole: (primary); {s}')
+      if _pk.handled:
          return
 
 #
