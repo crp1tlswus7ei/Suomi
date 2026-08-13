@@ -2,6 +2,7 @@ import discord
 from typing import Optional
 from discord import app_commands
 from discord.ext import commands
+from syst.SysExcp import ExcpStage, Stage
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
@@ -34,6 +35,7 @@ class LockChannel(commands.Cog):
       channel = channel or interaction.channel
       oc_ = channel.overwrites_for(interaction.guild.default_role)
       _delete = ButtonDelete(interaction)
+      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
       #
       if not interaction.user.guild_permissions.administrator:
          await interaction.response.send_message(
@@ -43,7 +45,7 @@ class LockChannel(commands.Cog):
          return
 
       #
-      try:
+      async with _pk:
          if oc_.send_messages is False:
             await interaction.response.send_message(
                embed = excpchannelalrlock_(interaction),
@@ -62,21 +64,8 @@ class LockChannel(commands.Cog):
                ephemeral = False,
                view = _delete
             )
-            return
 
-      except discord.Forbidden:
-         await interaction.response.send_message(
-            embed = excpcmd_(interaction),
-            ephemeral = True,
-            view = self.ExcpForbidden
-         )
-         return
-      except Exception as s:
-         await interaction.response.send_message(
-            embed = excperror_(interaction),
-            ephemeral = True
-         )
-         print(f'LockChannel: (primary); {s}')
+      if _pk.handled:
          return
 
 #
