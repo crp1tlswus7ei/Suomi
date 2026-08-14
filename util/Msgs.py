@@ -80,7 +80,7 @@ def HelpMenuInfo_(interaction: discord.Interaction) -> discord.Embed:
 def HelpMenuCommands_(interaction: discord.Interaction) -> discord.Embed:
    embed = discord.Embed(
       title = 'About Commands',
-      description = f'I currently have 21 commands, all in the moderation category.',
+      description = f'I currently have 22 commands, all in the moderation category.',
       color = discord.Color.from_str('#26215C')
    )
    embed.add_field(

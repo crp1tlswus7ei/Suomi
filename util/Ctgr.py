@@ -3,7 +3,7 @@ categories = [
    'Warns', 'UnWarn', 'ClearWarns', 'WarnList',
    'Mute', 'UnMute', 'HardMute', 'SetMute',
    'Timeout', 'UnTimeout', 'LockChannel', 'UnLockChannel',
-   'Clear', 'Purge', 'CloneRole', 'MassRole'
+   'Clear', 'Purge', 'CloneRole', 'MassRole', 'RemoveMass'
 ]
 
 def _CommandsCategories(items: list[str], cols: int = 2) -> str:
