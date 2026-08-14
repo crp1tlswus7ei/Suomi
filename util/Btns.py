@@ -5,7 +5,6 @@ so don't delete them.
 """
 
 import discord
-
 from datetime import datetime, timezone
 from util.Msgs import *
 from util.Excp import *
@@ -95,7 +94,7 @@ class MenuWarns(discord.ui.View):
            self,
            interaction: discord.Interaction,
            user: discord.Member,
-           warns: list[dict],
+           warns: list[dict]
    ):
       super().__init__(timeout = None)
       self.interaction = interaction
@@ -105,8 +104,8 @@ class MenuWarns(discord.ui.View):
       self._updateBtns()
 
    def _updateBtns(self):
-      self.btn_prev.disabled = self.index == 0
-      self.btn_next.disabled = self.index == len(self.warns) - 1
+      self._prev.disabled = self.index == 0
+      self._next.disabled = self.index == len(self.warns) - 1
 
    def _buildEmbed(self) -> discord.Embed:
       warn = self.warns[self.index]
@@ -117,17 +116,17 @@ class MenuWarns(discord.ui.View):
 
       embed = discord.Embed(
          title = f'{self.user.display_name} warns',
-         description = f'**Reason:** \n {warn['r']}',
+         description = f'**Reason:**\n{warn['r']}',
          color = discord.Color.from_str('#791F1F')
       )
       embed.set_thumbnail(url = self.user.display_avatar.url)
       embed.add_field(
-         name = 'Date',
+         name = 'Date:',
          value = f'{date_fmt}\n{date_rel}',
          inline = False
       )
       embed.add_field(
-         name = 'Author',
+         name = 'Author:',
          value = f'<@{warn['a']}>',
          inline = False
       )
@@ -145,39 +144,39 @@ class MenuWarns(discord.ui.View):
 
    @discord.ui.button(
       emoji = '<:white_left:1484014305241202738>',
-      style = discord.ButtonStyle.grey,
-   )
-   async def btn_prev(
-           self,
-           interaction: discord.Interaction,
-           button = discord.ui.Button
-   ):
-      self.index -= 1
-      await self._refresh(interaction)
-
-   @discord.ui.button(
-      emoji = '<:white_right:1501748298845917205>',
       style = discord.ButtonStyle.grey
    )
-   async def btn_next(
+   async def _prev(
            self,
            interaction: discord.Interaction,
-           button = discord.ui.Button
+           button: discord.ui.Button
    ):
-      self.index += 1
+      self.index -= 1
       await self._refresh(interaction)
 
    @discord.ui.button(
       emoji = '<:white_cross:1405656979266867210>',
       style = discord.ButtonStyle.grey
    )
-   async def btn_delete(
+   async def _delete(
            self,
            interaction: discord.Interaction,
-           button: discord.ui.BUtton
+           button: discord.ui.Button
    ):
       await interaction.response.defer()
       await interaction.delete_original_response()
+
+   @discord.ui.button(
+      emoji = '<:white_right:1501748298845917205>',
+      style = discord.ButtonStyle.grey
+   )
+   async def _next(
+           self,
+           interaction: discord.Interaction,
+           button: discord.ui.Button
+   ):
+      self.index += 1
+      await self._refresh(interaction)
 
 class MenuAdvice(discord.ui.View):
    def __init__(
