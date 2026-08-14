@@ -76,7 +76,7 @@ class WarnList(commands.Cog):
          view = MenuWarns(interaction, user, warns)
 
          await interaction.response.send_message(
-            embed = view.embeds[0],
+            embed = view._buildEmbed(), # safe
             view = view,
             ephemeral = False
          )
