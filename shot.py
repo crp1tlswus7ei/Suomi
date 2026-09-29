@@ -2,7 +2,7 @@ import os
 import asyncio
 import discord
 from discord.ext import commands
-from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 #
 from syst.SysMute import Mute
@@ -18,26 +18,30 @@ class Su:
       )
       self.token = os.getenv('CORE_TOKEN')
       self.mongo_uri = os.getenv('MONGO_URI')
-      self.shot = MongoClient(self.mongo_uri)
+      self.owner_id = os.getenv('OWNER_ID')
+      self.shot = AsyncIOMotorClient(self.mongo_uri)
       self.ints = discord.Intents.all()
       self.core = commands.Bot(
          intents = self.ints,
          command_prefix = GetPrefix_,
          help_command = None,
          strip_after_prefix = True,
-         owner_id = 529441009004707840  # oquattro (Osko)
+         owner_id = self.owner_id
       )
 
-      # on
+      #
       @self.core.event
       async def on_ready():
          print(f'Shot: Online... as; {self.core.user.display_name}')
          await self.core.change_presence(
             activity = discord.CustomActivity(
-               name = '/help | sudo!'
+               name = '/help | su!'
             ),
             status = discord.Status('online')
          )
+
+      @self.core.event
+      async def setup_hook():
          try:
             sync_ = await self.core.tree.sync()
             print(f'Shot: Sync_; {len(sync_)} commands.')
@@ -45,10 +49,10 @@ class Su:
          except Exception as s:
             print(f'Shot: (sync_); {s}')
 
-   # db
+   #
    async def connect_(self):
       try:
-         self.shot.admin.command('ping')
+         await self.shot.admin.command('ping')
          print(f'Shot: Database Online.')
 
       except Exception as s:
@@ -68,7 +72,6 @@ class Su:
                if not filename.endswith('.py'):
                   continue
 
-               # primary
                ext_ = f'{folder}.{filename[:-3]}'
                try:
                   await self.core.load_extension(ext_)
@@ -78,6 +81,7 @@ class Su:
       except Exception as s:
          print(f'Shot: (load_); {s}')
 
+   #
    async def shot_(self):
       async with self.core:
          self.core.sMute = Mute(self.mongo_uri)
@@ -87,8 +91,8 @@ class Su:
          await self.core.sMute.setup()
          await self.core.sWarn.setup()
          await self.core.sLevel.setup()
-         await self.load_()
          await self.connect_()
+         await self.load_()
          await self.core.start(self.token)
 
 asyncio.run(Su().shot_())
