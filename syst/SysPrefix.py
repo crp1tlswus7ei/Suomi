@@ -1,51 +1,47 @@
 import os
 from discord.ext import commands
-from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 
 load_dotenv()
 MONGO_URI = os.getenv('MONGO_URI')
-shot = MongoClient(MONGO_URI)
+shot = AsyncIOMotorClient(MONGO_URI)
 db = shot['core']
 w_coll = db['prefix']
-DEFAULT_PREFIX = '!'
-AUX_PREFIX = 'core'
+DEFAULT_PREFIX = '$'
+AUX_PREFIX = 'su'
 
 async def GetPrefix_(bot, message):
    if not message.guild:
-      commands.when_mentioned_or(
+      return commands.when_mentioned_or(
          DEFAULT_PREFIX, AUX_PREFIX
       )(
          bot, message
       )
 
-   custom_ = None
    prefixes = [DEFAULT_PREFIX, AUX_PREFIX]
 
-   data = w_coll.find_one(
+   data = await w_coll.find_one(
       {
          '_id': message.guild.id
       }
    )
 
    if data:
-      custom_ = data.get('prefix')
-
-   if custom_:
-      prefixes.insert(0, custom_)
+      prefixes.insert(0, data['prefix'])
 
    return commands.when_mentioned_or(*prefixes)(bot, message)
 
 async def GetActualPrefix_(guild_id: int):
-   prefix = w_coll.find_one(
+   data = await w_coll.find_one(
       {
          '_id': guild_id
       }
    )
-   return prefix['prefix']
+   return data['prefix'] if data else DEFAULT_PREFIX
 
 async def UpdatePrefix_(ctx, new_prefix):
-   w_coll.update_one(
+   await w_coll.update_one(
       {
          '_id': ctx.guild.id
       },
@@ -58,7 +54,7 @@ async def UpdatePrefix_(ctx, new_prefix):
    )
 
 async def ResetPrefix_(ctx):
-   w_coll.update_one(
+   await w_coll.update_one(
       {
          '_id': ctx.guild.id
       },
@@ -68,4 +64,24 @@ async def ResetPrefix_(ctx):
          }
       },
       upsert = True
+   )
+
+async def ResetGuildPrefix_(guild_id: int):
+   await w_coll.update_one(
+      {
+         '_id': guild_id
+      },
+      {
+         '$set': {
+            'prefix': DEFAULT_PREFIX
+         }
+      },
+      upsert = True
+   )
+
+async def DeletePrefix_(guild_id: int):
+   await w_coll.delete_one(
+      {
+         '_id': guild_id
+      }
    )

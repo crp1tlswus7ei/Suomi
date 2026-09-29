@@ -24,7 +24,7 @@ COL_NAME = 'roles'
 def toInt(snowflake: str) -> int:
    return snowflake
 
-async def autoTimeout(interaction: discord.Interaction, current: str):
+async def autoTimeout(interaction: discord.Interaction, current: int) -> list[app_commands.Choice[int]]:
    presets = [
       ('30 minutes', 30),
       ('1 hour', 60),
@@ -37,8 +37,7 @@ async def autoTimeout(interaction: discord.Interaction, current: str):
    return [
       app_commands.Choice(name = name, value = value)
       for name, value in presets
-      if current.lower() in name.lower()
-   ][:25]
+   ]
 #
 
 class Mute:
