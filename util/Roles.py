@@ -1,15 +1,16 @@
 import discord
+from discord.ext import commands
 
 overLockdown = discord.PermissionOverwrite(send_messages = False)
 overUnlock = discord.PermissionOverwrite(send_messages = True)
 
 #
 
-async def CreateMuteRole(self, interaction: discord.Interaction):
+async def CreateMuteRole(self, ctx: commands.Context):
    #
-   guild = interaction.guild
+   guild = ctx.guild
    #
-   role_ = await interaction.guild.create_role(
+   role_ = await guild.create_role(
       name = 'Mute',
       permissions = discord.Permissions(66560),
       colour = discord.Color.dark_red(),
@@ -28,11 +29,11 @@ async def CreateMuteRole(self, interaction: discord.Interaction):
    await guild.edit_role_positions(positions)
    return role_
 
-async def CreateHardMuteRole(self, interaction: discord.Interaction):
+async def CreateHardMuteRole(self, ctx: commands.Context):
    #
-   guild = interaction.guild
+   guild = ctx.guild
    #
-   role_ = await interaction.guild.create_role(
+   role_ = await guild.create_role(
       name = 'Hard Mute',
       permissions = discord.Permissions(66560),
       colour = discord.Color.dark_red(),
@@ -51,17 +52,17 @@ async def CreateHardMuteRole(self, interaction: discord.Interaction):
    await guild.edit_role_positions(positions)
    return role_
 
-async def CloneRole(self, interaction: discord.Interaction, role: discord.Role):
+async def CloneRole(self, ctx: commands.Context, role: discord.Role):
    #
-   guild = interaction.guild
+   guild = ctx.guild
    #
-   role_ = await interaction.guild.create_role(
+   role_ = await guild.create_role(
       name = f'{role.name} (clone)',
       permissions = role.permissions,
       colour = role.colour,
       hoist = role.hoist,
       mentionable = role.mentionable,
-      reason = f'CloneRole by Suomi; {interaction.user.display_name}'
+      reason = f'CloneRole by Suomi; {ctx.author.display_name}'
    )
    bot_role = guild.me.top_role
    roles = list(reversed(guild.roles))

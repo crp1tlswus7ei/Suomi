@@ -4,71 +4,11 @@ Interaction exceptions contain an underscore; otherwise, they use context.
 """
 
 import discord
-
-def excperror(ctx) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'Error.',
-      color = discord.Color.dark_red()
-   )
-   embed.set_footer(
-      text = 'Check error documentation.'
-   )
-   return embed
-
-def excpcmd(ctx) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'Error executing command.',
-      color = discord.Color.dark_red()
-   )
-   embed.set_footer(
-      text = 'Check error documentation.'
-   )
-   return embed
-
-def excpinteraction(ctx) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'Interaction error.',
-      color = discord.Color.dark_red()
-   )
-   embed.set_footer(
-      text = 'Check error documentation.'
-   )
-   return embed
-
-def excpuserperms(ctx) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'You are not allowed to use this command.',
-      color = discord.Color.dark_red()
-   )
-   return embed
-
-def excplenprefix(ctx) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'Prefix cannot have more than 2 characters.',
-      color = discord.Color.orange()
-   )
-   return embed
-
-def excpnoprefix(ctx) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'New prefix cannot be empty.',
-      color = discord.Color.orange()
-   )
-   return embed
-
-def excpnoamount(ctx) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'Enter a valid amount',
-      color = discord.Color.orange()
-   )
-   embed.set_footer(
-      text = 'The amount must be greater\nthan 0 or less than 10k'
-   )
-   return embed
+from discord.ext import commands
 
 #
 
-def excpsuomiself_(interaction: discord.Interaction) -> discord.Embed:
+def excpsuomiself_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = "You can't do that.",
       color = discord.Color.from_str('#791F1F')
@@ -78,14 +18,14 @@ def excpsuomiself_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpsuomirole_(interaction: discord.Interaction) -> discord.Embed:
+def excpsuomirole_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = "I can't clone my own role.",
       color = discord.Color.from_str('#791F1F')
    )
    return embed
 
-def excpsuomiperms_(interaction: discord.Interaction) -> discord.Embed:
+def excpsuomiperms_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Suomi is not allowed to perform this action.',
       color = discord.Color.from_str('#791F1F')
@@ -97,7 +37,7 @@ def excpsuomiperms_(interaction: discord.Interaction) -> discord.Embed:
 
 #
 
-def excperror_(interaction: discord.Interaction) -> discord.Embed:
+def excperror_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Something went wrong.',
       color = discord.Color.from_str('#791F1F')
@@ -107,7 +47,7 @@ def excperror_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpcmd_(interaction: discord.Interaction) -> discord.Embed:
+def excpcmd_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Error executing command.',
       color = discord.Color.from_str('#791F1F')
@@ -117,7 +57,14 @@ def excpcmd_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpchannel_(interaction: discord.Interaction) -> discord.Embed:
+def excpchannelresponse_(target: discord.Interaction | commands.Context) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'You cannot delete this message.',
+      color = discord.Color.from_str('#791F1F')
+   )
+   return embed
+
+def excpchannelperms_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Error modifying channel permissions.',
       color = discord.Color.from_str('#791F1F')
@@ -127,30 +74,23 @@ def excpchannel_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpchannelalrlock_(interaction: discord.Interaction) -> discord.Embed:
+def excpchannelalrlock_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'This channel is already locked.',
       color = discord.Color.from_str('#6B2E08')
    )
    return embed
 
-def excpchannelnolock_(interaction: discord.Interaction) -> discord.Embed:
+def excpchannelnolock_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'This channel is not locked.',
       color = discord.Color.from_str('#6B2E08')
    )
    return embed
 
-def excpinteractionresp_(interaction: discord.Interaction) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'You cannot delete this message.',
-      color = discord.Color.from_str('#791F1F')
-   )
-   return embed
-
 #
 
-def excpuserperms_(interaction: discord.Interaction) -> discord.Embed:
+def excpuserperms_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Insufficient permissions.',
       color = discord.Color.from_str('#6B2E08')
@@ -160,7 +100,7 @@ def excpuserperms_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpusernofound_(interaction: discord.Interaction) -> discord.Embed:
+def excpusernofound_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Something went wrong.',
       color = discord.Color.from_str('#6B2E08')
@@ -170,7 +110,7 @@ def excpusernofound_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpusernoban_(interaction: discord.Interaction) -> discord.Embed:
+def excpusernoban_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Something went wrong.',
       color = discord.Color.from_str('#6B2E08')
@@ -180,7 +120,7 @@ def excpusernoban_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpuserself_(interaction: discord.Interaction) -> discord.Embed:
+def excpuserself_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = "You can't do that.",
       color = discord.Color.from_str('#6B2E08')
@@ -190,7 +130,14 @@ def excpuserself_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpuseralrmute_(interaction: discord.Interaction, user: discord.Member) -> discord.Embed:
+def excpusernomute_(target: discord.Interaction | commands.Context, user: discord.Member) -> discord.Embed:
+   embed = discord.Embed(
+      title = f'{user.display_name} is not muted.',
+      color = discord.Color.from_str('#6B2E08')
+   )
+   return embed
+
+def excpuseralrmute_(target: discord.Interaction | commands.Context, user: discord.Member) -> discord.Embed:
    embed = discord.Embed(
       title = f'{user.display_name} already muted.',
       color = discord.Color.from_str('#6B2E08')
@@ -200,7 +147,7 @@ def excpuseralrmute_(interaction: discord.Interaction, user: discord.Member) -> 
    )
    return embed
 
-def excpuseralrhardmute_(interaction: discord.Interaction, user: discord.Member) -> discord.Member:
+def excpuseralrhardmute_(target: discord.Interaction | commands.Context, user: discord.Member) -> discord.Member:
    embed = discord.Embed(
       title = f'{user.display_name} already muted.',
       color = discord.Color.from_str('#6B2E08')
@@ -210,7 +157,7 @@ def excpuseralrhardmute_(interaction: discord.Interaction, user: discord.Member)
    )
    return embed
 
-def excpuseralrtimeout_(interaction: discord.Interaction, user: discord.Member, time_left) -> discord.Embed:
+def excpuseralrtimeout_(target: discord.Interaction | commands.Context, user: discord.Member, time_left) -> discord.Embed:
    embed = discord.Embed(
       title = f'{user.display_name} already timeout.',
       description = f'**duration:** {time_left} minutes.',
@@ -218,14 +165,14 @@ def excpuseralrtimeout_(interaction: discord.Interaction, user: discord.Member, 
    )
    return embed
 
-def excpusernotimeout_(interaction: discord.Interaction, user: discord.Member) -> discord.Embed:
+def excpusernotimeout_(target: discord.Interaction | commands.Context, user: discord.Member) -> discord.Embed:
    embed = discord.Embed(
       title = f'{user.display_name} has no timeout.',
       color = discord.Color.from_str('#6B2E08')
    )
    return embed
 
-def excpuserhierarchy_(interaction: discord.Interaction) -> discord.Embed:
+def excpuserhierarchy_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Insufficient permissions by hierarchy.',
       color = discord.Color.from_str('#6B2E08')
@@ -237,7 +184,7 @@ def excpuserhierarchy_(interaction: discord.Interaction) -> discord.Embed:
 
 #
 
-def excprolehierarchy_(interaction: discord.Interaction) -> discord.Embed:
+def excprolehierarchy_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Insufficient permissions for this role.',
       color = discord.Color.from_str('#6B2E08')
@@ -247,7 +194,7 @@ def excprolehierarchy_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excprolesetperms_(interaction: discord.Interaction) -> discord.Embed:
+def excprolesetperms_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Something went wrong.',
       color = discord.Color.from_str('#6B2E08')
@@ -257,17 +204,7 @@ def excprolesetperms_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excprolemutenull_(interaction: discord.Interaction) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'Mute or HardMute roles not found.',
-      color = discord.Color.from_str('#6B2E08')
-   )
-   embed.set_footer(
-      text = 'Execute "set_mute" command to configure Mute roles.'
-   )
-   return embed
-
-def excprolealrexist_(interaction: discord.Interaction) -> discord.Embed:
+def excprolealrexist_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Mute or HardMute roles already exists.',
       color = discord.Color.from_str('#6B2E08')
@@ -277,7 +214,7 @@ def excprolealrexist_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excproledefault_(interaction: discord.Interaction) -> discord.Embed:
+def excproledefault_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = "You can't do that",
       color = discord.Color.from_str('#791F1F')
@@ -287,7 +224,7 @@ def excproledefault_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excproledefaultinmass_(interaction: discord.Interaction) -> discord.Embed:
+def excproledefaultinmass_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = "You can't do that.",
       color = discord.Color.from_str('#791F1F')
@@ -297,7 +234,7 @@ def excproledefaultinmass_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excproledefaultinremovemass_(interaction: discord.Interaction) -> discord.Embed:
+def excproledefaultinremovemass_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = "You can't do that.",
       color = discord.Color.from_str('#791F1F')
@@ -309,7 +246,7 @@ def excproledefaultinremovemass_(interaction: discord.Interaction) -> discord.Em
 
 #
 
-def excpiderror_(interaction: discord.Interaction) -> discord.Embed:
+def excpiderror_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'Something went wrong.',
       color = discord.Color.from_str('#6B2E08')
@@ -319,7 +256,7 @@ def excpiderror_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpidnofound_(interaction: discord.Interaction) -> discord.Embed:
+def excpidnofound_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'ID does not exist.',
       color = discord.Color.from_str('#6B2E08')
@@ -331,51 +268,17 @@ def excpidnofound_(interaction: discord.Interaction) -> discord.Embed:
 
 #
 
-def excpnullamount_(interaction: discord.Interaction) -> discord.Embed:
+def excpnulluser(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
-      title = 'Enter a valid amount.',
+      title = 'User error.',
       color = discord.Color.from_str('#6B2E08')
    )
    embed.set_footer(
-      text = 'Amount must be greater than zero or\nless than ten.'
+      text = 'The user field cannot be empty.'
    )
    return embed
 
-def excpnullamountinclear_(interaction: discord.Interaction) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'Enter a valid amount.',
-      color = discord.Color.from_str('#6B2E08')
-   )
-   embed.set_footer(
-      text = 'Amount of messages cannot exceed 10k.'
-   )
-   return embed
-
-def excpnullduration_(interaction: discord.Interaction) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'Enter a valid duration in minutes.',
-      color = discord.Color.from_str('#6B2E08')
-   )
-   embed.set_footer(
-      text = 'Duration cannot exceed 10k minutes.'
-   )
-   return embed
-
-def excpnullwarns_(interaction: discord.Interaction, user: discord.Member) -> discord.Embed:
-   embed = discord.Embed(
-      title = f'{user.display_name} has no warns',
-      color = discord.Color.from_str('#6B2E08')
-   )
-   return embed
-
-def excpnullmute_(interaction: discord.Interaction, user: discord.Member) -> discord.Embed:
-   embed = discord.Embed(
-      title = f'{user.display_name} is not muted.',
-      color = discord.Color.from_str('#6B2E08')
-   )
-   return embed
-
-def excpnulluserxp_(interaction: discord.Interaction, user: discord.Member) -> discord.Embed:
+def excpnulluserxp_(target: discord.Interaction | commands.Context, user: discord.Member) -> discord.Embed:
    embed = discord.Embed(
       title = f'{user.display_name} has no level on this server.',
       color = discord.Color.from_str('#6B2E08')
@@ -386,16 +289,63 @@ def excpnulluserxp_(interaction: discord.Interaction, user: discord.Member) -> d
    )
    return embed
 
+def excpnullamount_(target: discord.Interaction | commands.Context) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'Enter a valid amount.',
+      color = discord.Color.from_str('#6B2E08')
+   )
+   embed.set_footer(
+      text = 'Amount must be greater than zero or\nless than ten.'
+   )
+   return embed
+
+def excpnullamountinclear_(target: discord.Interaction | commands.Context) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'Enter a valid amount.',
+      color = discord.Color.from_str('#6B2E08')
+   )
+   embed.set_footer(
+      text = 'Amount of messages cannot exceed 6k.'
+   )
+   return embed
+
+def excpnullduration_(target: discord.Interaction | commands.Context) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'Enter a valid duration in minutes.',
+      color = discord.Color.from_str('#6B2E08')
+   )
+   embed.set_footer(
+      text = 'Duration cannot exceed 10k minutes.'
+   )
+   return embed
+
+def excpnullmuteroles_(target: discord.Interaction | commands.Context) -> discord.Embed:
+   embed = discord.Embed(
+      title = 'Mute or HardMute roles not found.',
+      color = discord.Color.from_str('#6B2E08')
+   )
+   embed.set_footer(
+      text = 'Execute "set_mute" command to configure Mute roles.'
+   )
+   return embed
+
+def excpnullwarns_(target: discord.Interaction | commands.Context, user: discord.Member) -> discord.Embed:
+   embed = discord.Embed(
+      title = f'{user.display_name} has no warns',
+      color = discord.Color.from_str('#6B2E08')
+   )
+   return embed
+
 #
 
-def excpmenu_(interaction: discord.Interaction) -> discord.Embed:
+def excpmenu_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'This menu was no created for you.',
       color = discord.Color.from_str('#6B2E08')
    )
    return embed
 
-def excpmenusetmute_(inteaction: discord.Interaction) -> discord.Embed:
+def excpmenusetmute_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'SetMute: Operation Canceled.',
       color = discord.Color.from_str('#6B2E08')
@@ -406,7 +356,7 @@ def excpmenusetmute_(inteaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpmenuhardmute_(interaction: discord.Interaction) -> discord.Embed:
+def excpmenuhardmute_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'HardMute: Operation Canceled.',
       color = discord.Color.from_str('#6B2E08')
@@ -416,7 +366,7 @@ def excpmenuhardmute_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpmenumassrole_(interaction: discord.Interaction) -> discord.Embed:
+def excpmenumassrole_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'MassRole: Operation Canceled.',
       color = discord.Color.from_str('#6B2E08')
@@ -426,51 +376,12 @@ def excpmenumassrole_(interaction: discord.Interaction) -> discord.Embed:
    )
    return embed
 
-def excpmenuremovemass_(interaction: discord.Interaction) -> discord.Embed:
+def excpmenuremovemass_(target: discord.Interaction | commands.Context) -> discord.Embed:
    embed = discord.Embed(
       title = 'RemoveMass: Operation Canceled.',
       color = discord.Color.from_str('#6B2E08')
    )
    embed.set_footer(
       text = 'No roles were removed from any users or bots.'
-   )
-   return embed
-
-#
-
-def excpauth_(interaction: discord.Interaction) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'Autorization required.',
-      color = discord.Color.from_str('#791F1F')
-   )
-   return embed
-
-def excpauthverify_(interaction: discord.Interaction) -> discord.Embed:
-   embed = discord.Embed(
-      title = 'Cant verify authorization.',
-      color = discord.Color.from_str('#791F1F')
-   )
-   return embed
-
-#
-
-def ExtAlrLoad_(interaction: discord.Interaction, extension: str) -> discord.Embed:
-   embed = discord.Embed(
-      title = f'Already loaded: `{extension}`',
-      color = discord.Color.from_str('#791F1F')
-   )
-   return embed
-
-def ExtNotLoad_(interaction: discord.Interaction, extension: str) -> discord.Embed:
-   embed = discord.Embed(
-      title = f'Not loaded: `{extension}`',
-      color = discord.Color.from_str('#791F1F')
-   )
-   return embed
-
-def ExtNotFound_(interaction: discord.Interaction, extension: str) -> discord.Embed:
-   embed = discord.Embed(
-      title = f'Not found: `{extension}`',
-      color = discord.Color.from_str('#791F1F')
    )
    return embed

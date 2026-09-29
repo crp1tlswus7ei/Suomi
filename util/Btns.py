@@ -4,24 +4,26 @@ without this parameter, the buttons won't work properly,
 so don't delete them.
 """
 
-import discord
 from datetime import datetime, timezone
 from util.Msgs import *
 from util.Excp import *
+#
+import discord
+from discord.ext import commands
 
 class HelpView(discord.ui.View):
    def __init__(
            self,
-           interaction: discord.Interaction
+           ctx: commands.Context
    ):
       super().__init__(timeout = None)
-      self.author = interaction.user.id
-      self.interaction = interaction
+      self.author = ctx.author.id
+      self.ctx = ctx
       self.page = 0
       self.pages = [
-         HelpMenuInfo_(interaction),
-         HelpMenuCommands_(interaction),
-         HelpMenuSupport_(interaction)
+         HelpMenuInfo_(ctx),
+         HelpMenuCommands_(ctx),
+         HelpMenuSupport_(ctx)
       ]
       self.updateBtns()
 
@@ -92,14 +94,14 @@ class HelpView(discord.ui.View):
 class MenuWarns(discord.ui.View):
    def __init__(
            self,
-           interaction: discord.Interaction,
+           ctx: commands.Context,
            user: discord.Member,
            warns: list[dict]
    ):
       super().__init__(timeout = None)
-      self.interaction = interaction
-      self.warns = warns
+      self.ctx = ctx
       self.user = user
+      self.warns = warns
       self.index = 0
       self._updateBtns()
 
@@ -135,7 +137,7 @@ class MenuWarns(discord.ui.View):
       )
       return embed
 
-   async def _refresh(self, interaction: discord.Interaction):
+   async def _refreshView(self, interaction: discord.Interaction):
       self._updateBtns()
       await interaction.response.edit_message(
          embed = self._buildEmbed(),
@@ -152,7 +154,7 @@ class MenuWarns(discord.ui.View):
            button: discord.ui.Button
    ):
       self.index -= 1
-      await self._refresh(interaction)
+      await self._refreshView(interaction)
 
    @discord.ui.button(
       emoji = '<:white_cross:1405656979266867210>',
@@ -176,17 +178,17 @@ class MenuWarns(discord.ui.View):
            button: discord.ui.Button
    ):
       self.index += 1
-      await self._refresh(interaction)
+      await self._refreshView(interaction)
 
 class MenuAdvice(discord.ui.View):
    def __init__(
            self,
-           interaction: discord.Interaction
+           ctx: commands.Context
    ):
       super().__init__(timeout = None)
       self.confirmed = False
-      self.interaction = interaction
-      self.author = interaction.user.id
+      self.ctx = ctx
+      self.author = ctx.author.id
 
    async def interaction_check(self, interaction: discord.Interaction) -> bool:
 

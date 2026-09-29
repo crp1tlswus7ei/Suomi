@@ -1,7 +1,7 @@
 categories = [
-   'Rank', 'Ban', 'Kick', 'SoftBan', 'UnBan',
-   'Warns', 'UnWarn', 'ClearWarns', 'WarnList',
-   'Mute', 'UnMute', 'HardMute', 'SetMute',
+   'Rank', 'ResetPrefix', 'SetPrefix', 'Ban', 'Kick',
+   'SoftBan', 'UnBan', 'Warns', 'UnWarn', 'ClearWarns',
+   'WarnList', 'Mute', 'UnMute', 'HardMute', 'SetMute',
    'Timeout', 'UnTimeout', 'LockChannel', 'UnLockChannel',
    'Clear', 'Purge', 'CloneRole', 'MassRole', 'RemoveMass'
 ]
