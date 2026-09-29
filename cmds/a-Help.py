@@ -1,30 +1,35 @@
-import discord
-from discord import app_commands
-from discord.ext import commands
+from syst.SysExcp import *
 from util.Btns import *
-from util.Msgs import *
+#
+import discord
+from discord.ext import commands
 
 class Help(commands.Cog):
    def __init__(self, core):
       self.core = core
 
-   @app_commands.guild_only()
-   @app_commands.command(
+   @commands.guild_only()
+   @commands.hybrid_command(
       name = 'help',
       description = 'Help menu with all Suomi information and command information'
    )
    async def help(
            self,
-           interaction: discord.Interaction
+           ctx: commands.Context
    ):
       #
-      _view = HelpView(interaction)
+      _view = HelpView(ctx)
+      _pk = ExcpStage(ctx, self, Stage.PRIMARY)
       #
 
-      await interaction.response.send_message(
-         embed = _view.pages[0],
-         view = _view
-      )
+      async with _pk:
+         await ctx.send(
+            embed = _view.pages[0],
+            view = _view
+         )
+
+      if _pk.handled:
+         return
 
 async def setup(core):
    await core.add_cog(Help(core))
