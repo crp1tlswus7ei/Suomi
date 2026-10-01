@@ -1,141 +1,122 @@
-import discord
-from typing import Optional
-from discord import app_commands
-from discord.ext import commands
-from syst.SysExcp import ExcpStage, Stage
+from syst.SysExcp import *
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
+#
+import discord
+from discord import app_commands
+from discord.ext import commands
 
 class HardMute(commands.Cog):
    def __init__(self, core):
       self.core = core
       self.Mute = core.sMute
-      self.ExcpForbidden = ButtonExcpForbidden()
 
-   @app_commands.command(
+   @commands.hybrid_command(
       name = 'hard_mute',
+      aliases = [
+         'hardmute',
+         'hmute'
+      ],
       description = 'Mutes a user by removing their roles, indefinitely.'
    )
    @app_commands.describe(
       user = 'User to be muted.',
       reason = 'Reason for the mute.'
    )
-   @app_commands.guild_only()
+   @commands.guild_only()
    @app_commands.default_permissions(
+      moderate_members = True,
       manage_roles = True,
-      moderate_members = True
    )
    async def hard_mute(
            self,
-           interaction: discord.Interaction,
+           ctx: commands.Context,
            user: discord.Member,
-           reason: Optional[app_commands.Range[str, 1, 70]] = None
+           reason: str = None
    ):
       #
       ur_ = user.roles
-      igr_ = interaction.guild.roles
-      _view = MenuAdvice(interaction)
-      _delete = ButtonDelete(interaction)
-      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
-      _sec = ExcpStage(interaction, self, Stage.SECONDARY)
-      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
+      cgr_ = ctx.guild.roles
+      _view = MenuAdvice(ctx)
+      _del = ButtonDeleteCtx(ctx.author)
+      _pk = ExcpStage(ctx, self, Stage.PRIMARY)
+      _sec = ExcpStage(ctx, self, Stage.SECONDARY, overrides = EXCP, extra = {'user': user})
+      _org = ExcpStage(ctx, self, Stage.ORIGINAL, overrides = EXCP)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
 
       m_r = discord.utils.get(
-         interaction.guild.roles,
+         ctx.guild.roles,
          name = 'Mute'
       )
       hm_r = discord.utils.get(
-         interaction.guild.roles,
+         ctx.guild.roles,
          name = 'Hard Mute'
       )
       #
       async with _prms:
+         if not ctx.author.guild_permissions.moderate_members:
+            raise UserPerms
+
          if user == self.core.user:
-            await interaction.response.send_message(
-               embed = excpsuomiself_(interaction),
-               ephemeral = True
-            )
-            return
+            raise SuSelf
 
-         if user.id == interaction.user.id:
-            await interaction.response.send_message(
-               embed = excpuserself_(interaction),
-               ephemeral = True
-            )
-            return
+         if user.id == ctx.author.id:
+            raise UserSelf
 
-         if not interaction.user.guild_permissions.moderate_members:
-            await interaction.response.send_message(
-               embed = excpuserperms_(interaction),
-               ephemeral = True
-            )
-            return
-
-         if user.top_role >= interaction.user.top_role:
-            await interaction.response.send_message(
-               embed = excpuserhierarchy_(interaction),
-               ephemeral = True
-            )
-            return
+         if user.top_role >= ctx.author.top_role:
+            raise UserPerms
 
       if _prms.handled:
          return
 
       #
       async with _sec:
-         if hm_r not in igr_ or m_r not in igr_:
-            await interaction.response.send_message(
-               embed = excprolemutenull_(interaction),
-               ephemeral = True
-            )
-            return
+         if hm_r not in cgr_ or m_r not in cgr_:
+            raise NullMuteRoles
 
          if m_r in ur_:
-            await interaction.response.send_message(
-               embed = excpuseralrhardmute_(interaction, user),
-               ephemeral = True
-            )
-            return
+            raise UserMuted
 
          if hm_r in ur_:
-            await interaction.response.send_message(
-               embed = excpuseralrmute_(interaction, user),
-               ephemeral = True
-            )
-            return
+            raise UserHardMuted
 
       if _sec.handled:
          return
 
-      # original
-      await interaction.response.send_message(
-         embed = hardmutecaution_(interaction),
-         ephemeral = False,
-         view = _view
-      )
+      #
+      async with _org:
+         _original = await ctx.send(
+            embed = hardmutecaution_(ctx),
+            ephemeral = False,
+            view = _view
+         )
 
-      await _view.wait()
-      if not _view.confirmed:
-         await interaction.edit_original_response(
-            embed = excpmenuhardmute_(interaction),
-            view = _delete
-         )
+         await _view.wait()
+         if not _view.confirmed:
+            await _original.edit(
+               embed = excpmenuhardmute_(ctx),
+               view = _del
+            )
+            return
+
+         else:
+            await _original.edit(
+               embed = hardmuteloading_(ctx),
+               view = None
+            )
+            pass
+
+      if _org.handled:
          return
-      else:
-         await interaction.edit_original_response(
-            embed = hardmuteloading_(interaction),
-            view = None
-         )
-         pass
 
       #
       async with _pk:
          await self.Mute.ApplyHardMute_(user, hm_r)
 
-         await interaction.edit_original_response(
-            embed = hardmute_(interaction, user, reason or 'None'),
-            view = _delete
+         await _original.edit(
+            embed = hardmute_(ctx, user, reason or 'None'),
+            view = _del
          )
 
       if _pk.handled:
