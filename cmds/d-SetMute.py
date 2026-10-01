@@ -1,10 +1,10 @@
+from syst.SysExcp import *
+from util.Btns import *
+from util.Msgs import *
+#
 import discord
 from discord import app_commands
 from discord.ext import commands
-from syst.SysExcp import ExcpStage, Stage
-from util.Btns import *
-from util.Excp import *
-from util.Msgs import *
 
 class SetMute(commands.Cog):
    from util.Roles import (
@@ -15,112 +15,113 @@ class SetMute(commands.Cog):
    )
    def __init__(self, core):
       self.core = core
-      self.ExcpForbidden = ButtonExcpForbidden()
 
-   @app_commands.command(
+   @commands.hybrid_command(
       name = 'set_mute',
+      aliases = ['setmute'],
       description = 'Create Mute and Hard Mute roles managed by Suomi.'
    )
-   @app_commands.guild_only()
+   @commands.guild_only()
    @app_commands.default_permissions(
       administrator = True
    )
    async def set_mute(
            self,
-           interaction: discord.Interaction
+           ctx: commands.Context
    ):
       #
-      igr_ = interaction.guild.roles
-      igc_ = interaction.guild.channels
-      _view = MenuAdvice(interaction)
-      _delete = ButtonDelete(interaction)
-      _cmr = ExcpStage(interaction, self, Stage.CMR)
-      _mr = ExcpStage(interaction, self, Stage.MRSETPERMS)
-      _hmr = ExcpStage(interaction, self, Stage.HMRSETPERMS)
-      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
+      cgr_ = ctx.guild.roles
+      cgc_ = ctx.guild.channels
+      _view = MenuAdvice(ctx)
+      _del = ButtonDeleteCtx(ctx.author)
+      _pk = ExcpStage(ctx, self, Stage.PRIMARY)
+      _sec = ExcpStage(ctx, self, Stage.SECONDARY)
+      _org = ExcpStage(ctx, self, Stage.ORIGINAL)
+      _sub = ExcpStage(ctx, self, Stage.SUB)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
 
       m_r = discord.utils.get(
-         interaction.guild.roles,
+         ctx.guild.roles,
          name = 'Mute'
       )
       hm_r = discord.utils.get(
-         interaction.guild.roles,
+         ctx.guild.roles,
          name = 'Hard Mute'
       )
       #
-      if not interaction.user.guild_permissions.administrator:
-         await interaction.response.send_message(
-            embed = excpuserperms_(interaction),
-            ephemeral = True
-         )
-         return
+      async with _prms:
+         if not ctx.author.guild_permissions.administrator:
+            raise UserPerms
 
-      if m_r in igr_ or hm_r in igr_:
-         await interaction.response.send_message(
-            embed = excprolealrexist_(interaction),
-            ephemeral = True
-         )
-         return
+         if m_r in cgr_ or hm_r in cgr_:
+            raise RoleExists
 
-      # original
-      await interaction.response.send_message(
-         embed = setmutecaution_(interaction),
-         ephemeral = False,
-         view = _view
-      )
-
-      await _view.wait()
-      if not _view.confirmed:
-         await interaction.edit_original_response(
-            embed = excpmenusetmute_(interaction),
-            view = _delete
-         )
+      if _prms.handled:
          return
-      else:
-         await interaction.edit_original_response(
-            embed = setmuteloading_(interaction),
-            view = None
-         )
-         pass
 
       #
-      async with _cmr:
-         await self.CreateMuteRole(interaction) # safe
+      async with _org:
+         _original = await ctx.send(
+            embed = setmutecaution_(ctx),
+            ephemeral = False,
+            view = _view
+         )
+
+         await _view.wait()
+         if not _view.confirmed:
+            await _original.edit(
+               embed = excpmenusetmute_(ctx),
+               view = _del
+            )
+            return
+         else:
+            await _original.edit(
+               embed = setmuteloading_(ctx),
+               view = None
+            )
+            pass
+
+      if _org.handled:
+         return
+
+      #
+      async with _sec:
+         await self.CreateMuteRole(ctx) # safe
          m_r = discord.utils.get(
-            interaction.guild.roles,
+            ctx.guild.roles,
             name = 'Mute'
          )
-         for channel in igc_:
-            async with _mr:
+         for channel in cgc_:
+            async with _sub:
                await channel.set_permissions(
                   target = m_r,
                   overwrite = self.m_over
                )
-            if _mr.handled:
-               return
+            if _sub.handled:
+               pass
 
-         await self.CreateHardMuteRole(interaction) # safe
+         await self.CreateHardMuteRole(ctx) # safe
          hm_r = discord.utils.get(
-            interaction.guild.roles,
+            ctx.guild.roles,
             name = 'Hard Mute'
          )
-         for channel in igc_:
-            async with _hmr:
+         for channel in cgc_:
+            async with _sub:
                await channel.set_permissions(
                   target = hm_r,
                   overwrite = self.hm_over
                )
-            if _hmr.handled:
-               return
+            if _sub.handled:
+               pass
 
-      if _cmr.handled:
+      if _sec.handled:
          return
 
       #
       async with _pk:
-         await interaction.edit_original_response(
-            embed = setmute_(interaction),
-            view = _delete
+         await _original.edit(
+            embed = setmute_(ctx),
+            view = _del
          )
 
       if _pk.handled:
