@@ -28,7 +28,7 @@ class ClearWarns(commands.Cog):
            self,
            ctx: commands.Context,
            user: discord.Member,
-           reason: str
+           reason: str = None
    ):
       #
       warns_ = await self.Warn.GetWarns_(user.id, ctx.guild.id)
