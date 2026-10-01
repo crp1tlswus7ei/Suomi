@@ -1,18 +1,17 @@
+from syst.SysExcp import *
+from util.Btns import *
+from util.Msgs import *
+#
 import discord
 from discord import app_commands
 from discord.ext import commands
-from syst.SysExcp import ExcpStage, Stage
-from util.Btns import *
-from util.Excp import *
-from util.Msgs import *
 
 class UnWarn(commands.Cog):
    def __init__(self, core):
       self.core = core
       self.Warn = core.sWarn
-      self.ExcpForbidden = ButtonExcpForbidden()
 
-   @app_commands.command(
+   @commands.hybrid_command(
       name = 'unwarn',
       description = 'Removes a warn.'
    )
@@ -20,84 +19,66 @@ class UnWarn(commands.Cog):
       user = 'User to remove warn.',
       amount = 'Number of warns to remove; 1 by default.',
    )
-   @app_commands.guild_only()
+   @commands.guild_only()
    @app_commands.default_permissions(
       moderate_members = True,
       manage_roles = True
    )
    async def unwarn(
            self,
-           interaction: discord.Interaction,
+           ctx: commands.Context,
            user: discord.Member,
-           amount: app_commands.Range[int, 1, 10] = 1
+           amount: int = 1
    ):
       #
-      warns_ = await self.Warn.GetWarns_(
-         user.id,
-         interaction.guild.id
-      )
-      amount = max(1, min(amount, 10))
-      rmc = min(amount, len(warns_))
-      _delete = ButtonDelete(interaction)
-      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
-      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
+      warns_ = await self.Warn.GetWarns_(user.id, ctx.guild.id)
+      amount_ = max(1, min(amount, 10))
+      rmc = min(amount_, len(warns_))
+      _del = ButtonDeleteCtx(ctx.author)
+      _pk = ExcpStage(ctx, self, Stage.PRIMARY)
+      _sec = ExcpStage(ctx, self, Stage.SECONDARY, overrides = EXCP, extra = {'user': user})
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
       #
       async with _prms:
+         if not ctx.author.guild_permissions.manage_roles:
+            raise UserPerms
+
          if user == self.core.user:
-            await interaction.response.send_message(
-               embed = excpsuomiself_(interaction),
-               ephemeral = True
-            )
-            return
+            raise SuSelf
 
-         if user.id == interaction.user.id:
-            await interaction.response.send_message(
-               embed = excpuserself_(interaction),
-               ephemeral = True
-            )
-            return
+         if user.id == ctx.author.id:
+            raise UserSelf
 
-         if not interaction.user.guild_permissions.manage_roles:
-            await interaction.response.send_message(
-               embed = excpuserperms_(interaction),
-               ephemeral = True
-            )
-            return
+         if amount > 10:
+            raise NullAmount
 
-         if amount <= 0 or amount > 10:
-            await interaction.response.send_message(
-               embed = excpnullamount_(interaction),
-               ephemeral = True
-            )
-            return
-
-         if user.top_role >= interaction.user.top_role:
-            await interaction.response.send_message(
-               embed = excpuserhierarchy_(interaction),
-               ephemeral = True
-            )
-            return
+         if user.top_role >= ctx.author.top_role:
+            raise UserHierarchy
 
       if _prms.handled:
          return
 
       #
-      if not warns_:
-         await interaction.response.send_message(
-            embed = excpnullwarns_(interaction, user),
-            ephemeral = True
-         )
+      async with _sec:
+         if not warns_:
+            raise NullWarns
+
+      if _sec.handled:
          return
 
       #
       async with _pk:
          for _ in range(rmc):
-            await self.Warn.RemoveWarn_(user.id, interaction.guild.id, 0)
+            await self.Warn.RemoveWarn_(
+               user.id,
+               ctx.guild.id,
+               0
+            )
 
-         await interaction.response.send_message(
-            embed = unwarn_(interaction, user, rmc),
+         await ctx.send(
+            embed = unwarn_(ctx, user, rmc),
             ephemeral = False,
-            view = _delete
+            view = _del
          )
 
       if _pk.handled:
