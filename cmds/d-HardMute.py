@@ -26,8 +26,8 @@ class HardMute(commands.Cog):
    )
    @commands.guild_only()
    @app_commands.default_permissions(
-      moderate_members = True,
       manage_roles = True,
+      mute_members = True
    )
    async def hard_mute(
            self,
@@ -55,7 +55,7 @@ class HardMute(commands.Cog):
       )
       #
       async with _prms:
-         if not ctx.author.guild_permissions.moderate_members:
+         if not ctx.author.guild_permissions.manage_roles:
             raise UserPerms
 
          if user == self.core.user:
