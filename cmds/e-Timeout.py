@@ -1,20 +1,18 @@
+from syst.SysMute import autoTimeout
+from syst.SysExcp import *
+from util.Btns import *
+from util.Msgs import *
+#
 import discord
-from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 from datetime import timedelta, datetime, timezone
-from syst.SysExcp import ExcpStage, Stage
-from syst.SysMute import autoTimeout
-from util.Btns import *
-from util.Excp import *
-from util.Msgs import *
 
 class Timeout(commands.Cog):
    def __init__(self, core):
       self.core = core
-      self.ExcpForbidden = ButtonExcpForbidden()
 
-   @app_commands.command(
+   @commands.hybrid_command(
       name = 'timeout',
       description = 'Mutes a user for certain period of time.'
    )
@@ -26,81 +24,63 @@ class Timeout(commands.Cog):
    @app_commands.autocomplete(
       duration = autoTimeout
    )
-   @app_commands.guild_only()
+   @commands.guild_only()
    @app_commands.default_permissions(
       moderate_members = True
    )
    async def timeout(
            self,
-           interaction: discord.Interaction,
+           ctx: commands.Context,
            user: discord.Member,
-           duration: Optional[app_commands.Range[int, 1, 40315]] = 10,
-           reason: Optional[app_commands.Range[str, 1, 70]] = None
+           duration: int = 10,
+           reason: str = None
    ):
       #
       ut_ = datetime.now(timezone.utc)
-      _delete = ButtonDelete(interaction)
-      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
-      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
+      _del = ButtonDeleteCtx(ctx.author)
+      _pk = ExcpStage(ctx, self, Stage.PRIMARY)
+      _sec = ExcpStage(ctx, self, Stage.SECONDARY, overrides = EXCP, extra = {'user': user})
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
       #
       async with _prms:
+         if not ctx.author.guild_permissions.moderate_members:
+            raise UserPerms
+
          if user == self.core.user:
-            await interaction.response.send_message(
-               embed = excpsuomiself_(interaction),
-               ephemeral = True
-            )
-            return
+            raise SuSelf
 
-         if user.id == interaction.user.id:
-            await interaction.response.send_message(
-               embed = excpuserself_(interaction),
-               ephemeral = True
-            )
-            return
-
-         if not interaction.user.guild_permissions.moderate_members:
-            await interaction.response.send_message(
-               embed = excpuserperms_(interaction),
-               ephemeral = True
-            )
-            return
+         if user.id == ctx.author.id:
+            raise UserSelf
 
          if duration <= 0 or duration > 40315:
-            await interaction.response.send_message(
-               embed = excpnullduration_(interaction),
-               ephemeral = True
-            )
-            return
+            raise NullDuration
 
-         if user.top_role >= interaction.user.top_role:
-            await interaction.response.send_message(
-               embed = excpuserhierarchy_(interaction),
-               ephemeral = True
-            )
-            return
+         if user.top_role >= ctx.author.top_role:
+            raise UserHierarchy
 
       if _prms.handled:
          return
 
       #
-      if user.timed_out_until is not None and user.timed_out_until > ut_:
-         uttl_ = user.timed_out_until - ut_
-         min_ = int(uttl_.total_seconds() // 60)
+      async with _sec:
+         if user.timed_out_until is not None and user.timed_out_until > ut_:
+            uttl_ = user.timed_out_until - ut_
+            min_ = int(uttl_.total_seconds() // 60)
 
-         await interaction.response.send_message(
-            embed = excpuseralrtimeout_(interaction, user, min_),
-            ephemeral = True
-         )
+            _sec.extra['time_left'] = min_
+            raise UserTimedOut
+
+      if _sec.handled:
          return
 
       #
       async with _pk:
          await user.timeout(timedelta(minutes = duration))
 
-         await interaction.response.send_message(
-            embed = timeout_(interaction, user, duration, reason or 'None'),
+         await ctx.send(
+            embed = timeout_(ctx, user, duration, reason or 'None'),
             ephemeral = False,
-            view = _delete
+            view = _del
          )
 
       if _pk.handled:
