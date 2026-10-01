@@ -1,18 +1,17 @@
+from syst.SysExcp import *
+from util.Btns import *
+from util.Msgs import *
+#
 import discord
 from discord import app_commands
 from discord.ext import commands
-from syst.SysExcp import ExcpStage, Stage
-from util.Btns import *
-from util.Excp import *
-from util.Msgs import *
 
 class Warn(commands.Cog):
    def __init__(self, core):
       self.core = core
       self.Warn = core.sWarn
-      self.ExcpForbidden = ButtonExcpForbidden()
 
-   @app_commands.command(
+   @commands.hybrid_command(
       name = 'warn',
       description = 'Add a warn to a user.'
    )
@@ -20,50 +19,34 @@ class Warn(commands.Cog):
       user = 'User to add warn.',
       reason = 'Reason for the warn.'
    )
-   @app_commands.guild_only()
+   @commands.guild_only()
    @app_commands.default_permissions(
       moderate_members = True,
       manage_roles = True
    )
    async def warn(
            self,
-           interaction: discord.Interaction,
+           ctx: commands.Context,
            user: discord.Member,
-           reason: app_commands.Range[str, 1, 70]
+           reason: str = None
    ):
       #
-      _delete = ButtonDelete(interaction)
-      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
-      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
+      _del = ButtonDeleteCtx(ctx.author)
+      _pk = ExcpStage(ctx, self, Stage.PRIMARY)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
       #
       async with _prms:
+         if not ctx.author.guild_permissions.manage_roles:
+            raise UserPerms
+
          if user == self.core.user:
-            await interaction.response.send_message(
-               embed = excpsuomiself_(interaction),
-               ephemeral = True
-            )
-            return
+            raise SuSelf
 
-         if user.id == interaction.user.id:
-            await interaction.response.send_message(
-               embed = excpuserself_(interaction),
-               ephemeral = True
-            )
-            return
+         if user.id == ctx.author.id:
+            raise UserSelf
 
-         if not interaction.user.guild_permissions.manage_roles:
-            await interaction.response.send_message(
-               embed = excpuserperms_(interaction),
-               ephemeral = True
-            )
-            return
-
-         if user.top_role >= interaction.user.top_role:
-            await interaction.response.send_message(
-               embed = excpuserhierarchy_(interaction),
-               ephemeral = True
-            )
-            return
+         if user.top_role >= ctx.author.top_role:
+            raise UserHierarchy
 
       if _prms.handled:
          return
@@ -72,14 +55,15 @@ class Warn(commands.Cog):
       async with _pk:
          totalWarns_ = await self.Warn.AddWarns_(
             user.id,
-            interaction.guild.id,
-            interaction.user.id, reason
+            ctx.guild.id,
+            ctx.author.id,
+            reason
          )
 
-         await interaction.response.send_message(
-            embed = warn_(interaction, user, totalWarns_, reason),
+         await ctx.send(
+            embed = warn_(ctx, user, totalWarns_, reason or 'None'),
             ephemeral = False,
-            view = _delete
+            view = _del
          )
 
       if _pk.handled:
