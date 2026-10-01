@@ -31,7 +31,7 @@ class SoftBan(commands.Cog):
            self,
            ctx: commands.Context,
            user: discord.Member,
-           reason: Optional[app_commands.Range[str, 1, 70]] = None
+           reason: str = None
    ):
       #
       _del = ButtonDeleteCtx(ctx.author)
