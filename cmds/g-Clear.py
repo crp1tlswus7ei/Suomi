@@ -1,69 +1,69 @@
-import discord
-from typing import Optional
+from syst.SysExcp import *
+from util.Btns import *
+from util.Msgs import *
+#
 from discord import app_commands
 from discord.ext import commands
-from syst.SysExcp import ExcpStage, Stage
-from util.Btns import *
-from util.Excp import *
-from util.Msgs import *
 
 class Clear(commands.Cog):
    def __init__(self, core):
       self.core = core
-      self.ExcpForbidden = ButtonExcpForbidden()
 
-   @app_commands.command(
+   @commands.hybrid_command(
       name = 'clear',
       description = 'Delete any messages from this channel.'
    )
    @app_commands.describe(
       amount = 'Number of messages to delete; 10 by default.'
    )
-   @app_commands.guild_only()
+   @commands.guild_only()
    @app_commands.default_permissions(
       manage_messages = True
    )
    async def clear(
            self,
-           interaction: discord.Interaction,
-           amount: Optional[app_commands.Range[int, 1, 6000]] = 10
+           ctx: commands.Context,
+           amount: int = 10
    ):
       #
-      _delete = ButtonDelete(interaction)
-      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
-      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
+      _original = None
+      _del = ButtonDeleteCtx(ctx.author)
+      _pk = ExcpStage(ctx, self, Stage.PRIMARY)
+      _org = ExcpStage(ctx, self, Stage.ORIGINAL, overrides = EXCP)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
       #
       async with _prms:
-         if not interaction.user.guild_permissions.manage_messages:
-            await interaction.response.send_message(
-               embed = excpuserperms_(interaction),
-               ephemeral = True
-            )
-            return
+         if not ctx.author.guild_permissions.manage_messages:
+            raise UserPerms
 
          if amount <= 0 or amount > 6000:
-            await interaction.response.send_message(
-               embed = excpnullamountinclear_(interaction),
-               ephemeral = True
-            )
-            return
+            raise NullAmountClear
 
       if _prms.handled:
          return
 
-      # original
-      await interaction.response.send_message(
-         embed = clearloading_(interaction),
-         ephemeral = True
-      )
+      #
+      async with _org:
+         _original = await ctx.send(
+            embed = clearloading_(ctx),
+            ephemeral = True
+         )
+
+      if _org.handled:
+         return
 
       #
       async with _pk:
-         clr_ = await interaction.channel.purge(limit = amount)
+         clr_ = await ctx.channel.purge(
+            limit = amount,
+            check = lambda m:
+               _original is None or m.id != _original.id
+         )
          msgdel_ = len(clr_)
 
-         await interaction.edit_original_response(
-            embed = clear_(interaction, msgdel_)
+         await _original.edit(
+            embed = clear_(ctx, msgdel_),
+            view = _del if not ctx.interaction else None
          )
 
       if _pk.handled:
