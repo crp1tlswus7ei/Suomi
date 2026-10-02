@@ -295,7 +295,7 @@ def excpnullamount_(target: discord.Interaction | commands.Context) -> discord.E
       color = discord.Color.from_str('#6B2E08')
    )
    embed.set_footer(
-      text = 'Amount must be greater than zero or\nless than ten.'
+      text = 'Amount must be less than ten.'
    )
    return embed
 
@@ -315,7 +315,7 @@ def excpnullduration_(target: discord.Interaction | commands.Context) -> discord
       color = discord.Color.from_str('#6B2E08')
    )
    embed.set_footer(
-      text = 'Duration cannot exceed 10k minutes.'
+      text = 'Duration cannot exceed 4k minutes.'
    )
    return embed
 
