@@ -1,68 +1,68 @@
+from syst.SysExcp import *
+from util.Btns import *
+from util.Msgs import *
+#
 import discord
-from typing import Optional
 from discord import app_commands
 from discord.ext import commands
-from syst.SysExcp import ExcpStage, Stage
-from util.Btns import *
-from util.Excp import *
-from util.Msgs import *
 
 class LockChannel(commands.Cog):
    from util.Roles import overLockdown
    def __init__(self, core):
       self.core = core
-      self.ExcpForbidden = ButtonExcpForbidden()
 
-   @app_commands.command(
+   @commands.hybrid_command(
       name = 'lock_channel',
+      aliases = [
+         'channel_lock',
+         'lockchannel',
+         'lock',
+      ],
       description = 'Locks a channel for sending messages to everyone.'
    )
    @app_commands.describe(
       channel = 'Channel to block messages; Actual by default.',
       reason = 'Reason for lock.'
    )
-   @app_commands.guild_only()
+   @commands.guild_only()
    @app_commands.default_permissions(
       administrator = True
    )
    async def lock_channel(
            self,
-           interaction: discord.Interaction,
+           ctx: commands.Context,
            channel: discord.TextChannel = None,
-           reason: Optional[app_commands.Range[str, 1, 70]] = None
+           reason: str = None
    ):
       #
-      channel = channel or interaction.channel
-      oc_ = channel.overwrites_for(interaction.guild.default_role)
-      _delete = ButtonDelete(interaction)
-      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
+      channel = channel or ctx.channel
+      co_ = channel.overwrites_for(ctx.guild.default_role)
+      _del = ButtonDeleteCtx(ctx.author)
+      _pk = ExcpStage(ctx, self, Stage.PRIMARY, overrides = EXCP)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
       #
-      if not interaction.user.guild_permissions.administrator:
-         await interaction.response.send_message(
-            embed = excpuserperms_(interaction),
-            ephemeral = True
-         )
+      async with _prms:
+         if not ctx.author.guild_permissions.administrator:
+            raise UserPerms
+
+      if _prms.handled:
          return
 
       #
       async with _pk:
-         if oc_.send_messages is False:
-            await interaction.response.send_message(
-               embed = excpchannelalrlock_(interaction),
-               ephemeral = True
-            )
-            return
+         if co_.send_messages is False:
+            raise ChannelLocked
 
          else:
             await channel.set_permissions(
-               interaction.guild.default_role,
+               ctx.guild.default_role,
                overwrite = self.overLockdown
             )
 
-            await interaction.response.send_message(
-               embed = lockchannel_(interaction, channel, reason or 'None'),
+            await ctx.send(
+               embed = lockchannel_(ctx, channel, reason or 'None'),
                ephemeral = False,
-               view = _delete
+               view = _del
             )
 
       if _pk.handled:
