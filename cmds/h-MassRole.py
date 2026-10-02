@@ -1,104 +1,101 @@
-import discord
-from discord import app_commands
-from discord.ext import commands
-from syst.SysExcp import ExcpStage, Stage
+from syst.SysExcp import *
 from util.Btns import *
 from util.Excp import *
 from util.Msgs import *
+#
+import discord
+from discord import app_commands
+from discord.ext import commands
 
 class MassRole(commands.Cog):
    def __init__(self, core):
       self.count = 0
       self.core = core
-      self.ExcpForbidden = ButtonExcpForbidden()
 
-   @app_commands.command(
+   @commands.hybrid_command(
       name = 'mass_role',
+      aliases = ['massrole'],
       description = 'Assign any role to all users.'
    )
    @app_commands.describe(
       role = 'Role to assign globally.'
    )
+   @commands.guild_only()
    @app_commands.default_permissions(
       administrator = True
    )
    async def mass_role(
            self,
-           interaction: discord.Interaction,
+           ctx: commands.Context,
            role: discord.Role
    ):
       #
-      members = interaction.guild.members
-      _view = MenuAdvice(interaction)
-      _delete = ButtonDelete(interaction)
-      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
-      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
+      cgm_ = ctx.guild.members
+      _view = MenuAdvice(ctx)
+      _del = ButtonDeleteCtx(ctx.author)
+      _pk = ExcpStage(ctx, self, Stage.PRIMARY)
+      _sec = ExcpStage(ctx, self, Stage.SECONDARY)
+      _org = ExcpStage(ctx, self, Stage.ORIGINAL)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
       #
       async with _prms:
-         if role == interaction.guild.me.top_role:
-            await interaction.response.send_message(
-               embed = excpsuomirole_(interaction),
-               ephemeral = True
-            )
-            return
+         if not ctx.author.guild_permissions.administrator:
+            raise UserPerms
 
-         if role == interaction.guild.default_role:
-            await interaction.response.send_message(
-               embed = excproledefaultinmass_(interaction),
-               ephemeral = True
-            )
-            return
+         if role == ctx.guild.me.top_role:
+            raise SuSelfRole
 
-         if not interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message(
-               embed = excpuserperms_(interaction),
-               ephemeral = True
-            )
-            return
+         if role == ctx.guild.default_role:
+            raise RoleDefault
 
-         if role >= interaction.user.top_role:
-            await interaction.response.send_message(
-               embed = excprolehierarchy_(interaction),
-               ephemeral = True
-            )
-            return
+         if role >= ctx.author.top_role:
+            raise RoleHierarchy
 
       if _prms.handled:
          return
 
-      # original
-      await interaction.response.send_message(
-         embed = massrolecaution_(interaction, role),
-         ephemeral = False,
-         view = _view
-      )
+      #
+      async with _org:
+         _original = await ctx.send(
+            embed = massrolecaution_(ctx, role),
+            ephemeral = False,
+            view = _view
+         )
 
-      await _view.wait()
-      if not _view.confirmed:
-         await interaction.edit_original_response(
-            embed = excpmenumassrole_(interaction),
-            view = _delete
-         )
+      if _org.handled:
          return
-      else:
-         await interaction.edit_original_response(
-            embed = massroleloading_(interaction),
-            view = None
-         )
-         pass
+
+      #
+      async with _sec:
+         await _view.wait()
+         if not _view.confirmed:
+            await _original.edit(
+               embed = excpmenumassrole_(ctx),
+               view = _del
+            )
+            return
+         else:
+            await _original.edit(
+               embed = massroleloading_(ctx),
+               view = None
+            )
+            pass
+
+      if _sec.handled:
+         return
 
       #
       async with _pk:
-         for member in members:
+         for member in cgm_:
             if role in member.roles:
                continue
 
             await member.add_roles(role)
             self.count += 1
 
-         await interaction.edit_original_response(
-            embed = massrole_(interaction, role),
-            view = _delete
+         await _original.edit(
+            embed = massrole_(ctx, role),
+            view = _del
          )
 
       if _pk.handled:
