@@ -1,90 +1,79 @@
+from syst.SysExcp import *
+from util.Btns import *
+from util.Msgs import *
+#
 import discord
 from discord import app_commands
 from discord.ext import commands
-from syst.SysExcp import ExcpStage, Stage
-from util.Btns import *
-from util.Excp import *
-from util.Msgs import *
 
 class Purge(commands.Cog):
    def __init__(self, core):
       self.core = core
-      self.ExcpForbidden = ButtonExcpForbidden()
 
-   @app_commands.command(
+   @commands.hybrid_command(
       name = 'purge',
       description = 'Delete messages from a specific user without banning them.',
    )
    @app_commands.describe(
       user = 'User to delete messages.'
    )
-   @app_commands.guild_only()
+   @commands.guild_only()
    @app_commands.default_permissions(
-      moderate_members = True,
-      manage_messages = True
+      administrator = True
    )
    async def purge(
            self,
-           interaction: discord.Interaction,
+           ctx: commands.Context,
            user: discord.Member
    ):
       #
-      _delete = ButtonDelete(interaction)
-      _pk = ExcpStage(interaction, self, Stage.PRIMARY)
-      _prms = ExcpStage(interaction, self, Stage.PERMISSIONS)
+      _del = ButtonDeleteCtx(ctx.author)
+      _pk = ExcpStage(ctx, self, Stage.PRIMARY)
+      _org = ExcpStage(ctx, self, Stage.ORIGINAL)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
 
       def check_user(msg):
          return msg.author.id == user.id
 
       #
       async with _prms:
+         if not ctx.author.guild_permissions.administrator:
+            raise UserPerms
+
          if user == self.core.user:
-            await interaction.response.send_message(
-               embed = excpsuomiself_(interaction),
-               ephemeral = True
-            )
-            return
+            raise SuSelf
 
-         if user.id == interaction.user.id:
-            await interaction.response.send_message(
-               embed = excpuserself_(interaction),
-               ephemeral = True
-            )
-            return
+         if user.id == ctx.author.id:
+            raise UserSelf
 
-         if not interaction.user.guild_permissions.moderate_members:
-            await interaction.response.send_message(
-               embed = excpuserperms_(interaction),
-               ephemeral = True
-            )
-            return
-
-         if user.top_role >= interaction.user.top_role:
-            await interaction.response.send_message(
-               embed = excpuserhierarchy_(interaction),
-               ephemeral = True
-            )
-            return
+         if user.top_role >= ctx.author.top_role:
+            raise UserHierarchy
 
       if _prms.handled:
          return
 
-      # original
-      await interaction.response.send_message(
-         embed = purgeloading_(interaction, user),
-         ephemeral = True
-      )
+      #
+      async with _org:
+         _original = await ctx.send(
+            embed = purgeloading_(ctx, user),
+            ephemeral = True,
+            view = None
+         )
+
+      if _org.handled:
+         return
 
       #
       async with _pk:
-         purg_ = await interaction.channel.purge(
+         purg_ = await ctx.channel.purge(
             limit = 7049,
             check = check_user
          )
          msgdel_ = len(purg_)
 
-         await interaction.edit_original_response(
-            embed = purge_(interaction, user, msgdel_)
+         await _original.edit(
+            embed = purge_(ctx, user, msgdel_),
+            view = _del if not ctx.interaction else None
          )
 
       if _pk.handled:
