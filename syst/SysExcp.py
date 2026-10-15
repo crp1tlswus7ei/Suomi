@@ -465,7 +465,7 @@ async def _DispatchExcp(
         extra = None
 ):
    _send = _Send(target)
-   _handlers = {**DEFAULT, **(overrides or {})}
+   _handlers = {**DEFAULT, **EXCP, **(overrides or {})}
 
    for _exc_type, handler in _handlers.items():
       if isinstance(excp, _exc_type):
