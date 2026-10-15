@@ -3,7 +3,6 @@ from syst.SysExcp import *
 from util.Btns import *
 from util.Msgs import *
 #
-import discord
 from discord import app_commands
 from discord.ext import commands
 
@@ -36,7 +35,7 @@ class SetPrefix(commands.Cog):
       _prefix = await GetActualPrefix_(gi_)
       _del = ButtonDeleteCtx(ctx.author)
       _pk = ExcpStage(ctx, self, Stage.PRIMARY)
-      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS)
       #
       async with _prms:
          if not ctx.author.guild_permissions.administrator:
