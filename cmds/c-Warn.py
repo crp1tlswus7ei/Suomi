@@ -33,7 +33,7 @@ class Warn(commands.Cog):
       #
       _del = ButtonDeleteCtx(ctx.author)
       _pk = ExcpStage(ctx, self, Stage.PRIMARY)
-      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS)
       #
       async with _prms:
          if not ctx.author.guild_permissions.manage_roles:
