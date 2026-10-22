@@ -41,9 +41,9 @@ class HardMute(commands.Cog):
       _view = MenuAdvice(ctx)
       _del = ButtonDeleteCtx(ctx.author)
       _pk = ExcpStage(ctx, self, Stage.PRIMARY)
-      _sec = ExcpStage(ctx, self, Stage.SECONDARY, overrides = EXCP, extra = {'user': user})
-      _org = ExcpStage(ctx, self, Stage.ORIGINAL, overrides = EXCP)
-      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
+      _sec = ExcpStage(ctx, self, Stage.SECONDARY, extra = {'user': user})
+      _org = ExcpStage(ctx, self, Stage.ORIGINAL)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS)
 
       m_r = discord.utils.get(
          ctx.guild.roles,
