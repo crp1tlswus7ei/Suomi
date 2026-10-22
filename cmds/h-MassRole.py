@@ -36,7 +36,7 @@ class MassRole(commands.Cog):
       _pk = ExcpStage(ctx, self, Stage.PRIMARY)
       _sec = ExcpStage(ctx, self, Stage.SECONDARY)
       _org = ExcpStage(ctx, self, Stage.ORIGINAL)
-      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS)
       #
       async with _prms:
          if not ctx.author.guild_permissions.administrator:
