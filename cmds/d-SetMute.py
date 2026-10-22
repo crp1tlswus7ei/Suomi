@@ -38,7 +38,7 @@ class SetMute(commands.Cog):
       _sec = ExcpStage(ctx, self, Stage.SECONDARY)
       _org = ExcpStage(ctx, self, Stage.ORIGINAL)
       _sub = ExcpStage(ctx, self, Stage.SUB)
-      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS)
 
       m_r = discord.utils.get(
          ctx.guild.roles,
