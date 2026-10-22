@@ -30,7 +30,7 @@ class Purge(commands.Cog):
       _del = ButtonDeleteCtx(ctx.author)
       _pk = ExcpStage(ctx, self, Stage.PRIMARY)
       _org = ExcpStage(ctx, self, Stage.ORIGINAL)
-      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS)
 
       def check_user(msg):
          return msg.author.id == user.id
