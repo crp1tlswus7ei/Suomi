@@ -31,7 +31,7 @@ class WarnList(commands.Cog):
       user = user or ctx.author
       _del = ButtonDeleteCtx(ctx.author)
       _pk = ExcpStage(ctx, self, Stage.PRIMARY)
-      _sec = ExcpStage(ctx, self, Stage.SECONDARY, overrides = EXCP, extra = {'user': user})
+      _sec = ExcpStage(ctx, self, Stage.SECONDARY, extra = {'user': user})
       _prms = ExcpStage(ctx, self, Stage.PERMISSIONS)
       #
       async with _prms:
