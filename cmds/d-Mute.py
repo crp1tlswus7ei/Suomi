@@ -34,9 +34,9 @@ class Mute(commands.Cog):
       ur_ = user.roles
       cgr_ = ctx.guild.roles
       _del = ButtonDeleteCtx(ctx.author)
-      _pk = ExcpStage(ctx, self, Stage.PRIMARY, overrides = EXCP)
-      _sec = ExcpStage(ctx, self, Stage.SECONDARY, overrides = EXCP, extra = {'user': user})
-      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
+      _pk = ExcpStage(ctx, self, Stage.PRIMARY)
+      _sec = ExcpStage(ctx, self, Stage.SECONDARY, extra = {'user': user})
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS)
 
       m_r = discord.utils.get(
          ctx.guild.roles,
