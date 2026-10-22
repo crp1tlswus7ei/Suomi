@@ -29,8 +29,8 @@ class Clear(commands.Cog):
       _original = None
       _del = ButtonDeleteCtx(ctx.author)
       _pk = ExcpStage(ctx, self, Stage.PRIMARY)
-      _org = ExcpStage(ctx, self, Stage.ORIGINAL, overrides = EXCP)
-      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS, overrides = EXCP)
+      _org = ExcpStage(ctx, self, Stage.ORIGINAL)
+      _prms = ExcpStage(ctx, self, Stage.PERMISSIONS)
       #
       async with _prms:
          if not ctx.author.guild_permissions.manage_messages:
