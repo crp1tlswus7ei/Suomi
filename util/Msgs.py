@@ -66,7 +66,7 @@ def HelpMenuSupport_(ctx: commands.Context) -> discord.Embed:
 #
 
 def rank_(
-        interaction: discord.Interaction,
+        ctx: commands.Context,
         target,
         lv,
         xp,
@@ -104,8 +104,8 @@ def rank_(
       inline = False
    )
    embed.set_footer(
-      text = interaction.guild.name,
-      icon_url = interaction.guild.icon
+      text = ctx.guild.name,
+      icon_url = ctx.guild.icon
    )
    return embed
 
